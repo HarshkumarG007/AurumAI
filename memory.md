@@ -127,8 +127,8 @@
 - [x] Live Google Gemini API connected and verified with model `gemini-3.8-flash` and tool-calling execution.
 - [x] Hindi conversational persona tone reviewed for cultural warmth and non-directive financial invariants (RULE-018).
 - [ ] Configure production secrets in GitHub Repo Settings (`Settings -> Secrets and variables -> Actions`) for 24/7 background cron.
-- [ ] Register live production Telegram webhook on Vercel deployment.
-- [ ] GitHub Actions scheduled workflows monthly keepalive in place (RULE-023).
+- [x] Register live production Telegram webhook on Vercel deployment (`https://aurumai-opal.vercel.app/api/telegram/webhook`).
+- [x] GitHub Actions scheduled workflows monthly keepalive in place (RULE-023).
 
 ## Major Bugs
 
