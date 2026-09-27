@@ -17,7 +17,8 @@ process.env.DUTY_PCT = "0.15";
 process.env.GST_PCT = "0.03";
 
 describe("Phase 2: Telegram Webhook & Secret Token Verification", async () => {
-  const { POST, handleTelegramUpdate } = await import("../app/api/telegram/webhook/route.ts");
+  const { POST } = await import("../app/api/telegram/webhook/route.ts");
+  const { handleTelegramUpdate } = await import("../app/api/telegram/webhook/handler.ts");
 
   test("RULE-004: Request with MISSING secret token returns 200 OK silently with no processing", async () => {
     const mockRequest = {

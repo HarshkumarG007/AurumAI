@@ -6,7 +6,7 @@
 import fs from "fs";
 import path from "path";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
-import { calculate_landed_inr, build_market_records } from "@/ml_pipeline/fetch_wrapper";
+import { calculate_landed_inr } from "@/ml_pipeline/fetch_wrapper";
 
 export type MetalType = "gold_22k" | "gold_24k" | "silver";
 

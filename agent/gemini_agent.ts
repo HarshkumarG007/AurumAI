@@ -198,7 +198,8 @@ export async function runAurumAgent(
       const functionResponseParts: any[] = [];
 
       for (const call of functionCalls) {
-        const name = call.name;
+        const name = call.name || "";
+        if (!name) continue;
         const args = (call.args || {}) as Record<string, any>;
         toolsCalled.push(name);
 
