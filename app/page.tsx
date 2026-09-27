@@ -1314,14 +1314,105 @@ export default function AurumDashboard() {
 
       {/* Footer */}
       <footer className="app-footer">
-        <div className="footer-disclaimer">
-          <strong>Mandatory Disclosure:</strong> Aurum AI provides landed retail estimates based on international spot quotes, currency exchange rates, Indian customs import duty (15%), and GST (3%). Physical retail dealer quotes, local hallmark charges, and jeweler making charges may vary. Aurum AI never provides financial or investment advice.
+        <div className="footer-glow-aura" />
+        
+        <div className="footer-top-grid">
+          {/* Brand Identity & Mission */}
+          <div className="footer-brand-col">
+            <div className="footer-brand-title">
+              <span className="aurum-symbol">Au</span>
+              <span className="aurum-text-gold-silver">Aurum AI</span>
+              <span className="aurum-hindi-badge">औरम एआई</span>
+            </div>
+            <p className="footer-brand-desc">
+              India&apos;s First Zero-Directive Bullion Intelligence Platform &amp; Native Spoken Hindi Voice Companion. Combining pure deterministic landed arithmetic with rigorous econometric machine learning gating.
+            </p>
+          </div>
+
+          {/* Connect & Professional Profiles */}
+          <div className="footer-connect-col">
+            <h4 className="footer-section-title">Connect &amp; Developer Network</h4>
+            <div className="footer-social-links">
+              <a
+                href="https://in.linkedin.com/in/harshkumarg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-social-badge linkedin-badge"
+                id="link-linkedin-profile"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9h2.77v8.37H6.46v-8.37M7.84 6.2a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/>
+                </svg>
+                <span>LinkedIn • Harsh Kumar Gupta</span>
+              </a>
+
+              <a
+                href="https://github.com/HarshkumarG007"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-social-badge github-badge"
+                id="link-github-profile"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                </svg>
+                <span>GitHub • HarshkumarG007</span>
+              </a>
+
+              <a
+                href="https://t.me/Aurum_AI_Family_Bot"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-social-badge telegram-badge"
+                id="link-telegram-bot"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.52 2.77-1.18 3.35-1.38 3.73-1.39.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                </svg>
+                <span>Telegram Voice Companion</span>
+              </a>
+            </div>
+          </div>
         </div>
-        <div>
-          <span>Aurum AI v2.0 • Apache License 2.0 • </span>
-          <a href="https://github.com/HarshkumarG007/AurumAI" target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold-light)" }}>
-            GitHub Repository
-          </a>
+
+        {/* Regulatory & Stat Disclosure */}
+        <div className="footer-disclaimer-box">
+          <div className="footer-disclaimer-icon">⚠️</div>
+          <div className="footer-disclaimer-text">
+            <strong>Mandatory Statutory Disclosure (SEBI &amp; Indian Bullion Norms):</strong> Aurum AI provides mathematical estimates computed strictly from international COMEX quotes, USD/INR currency exchange rates, Indian Customs Import Duty (10% BCD + 5% AIDC = 15%), and 3% Precious Metals GST. Physical retail jeweler quotes, hallmark certification charges, and local making charges may vary. Aurum AI strictly enforces <strong>RULE-003</strong> and never provides financial advice, price targets, or directive buy/sell instructions under any circumstances.
+          </div>
+        </div>
+
+        {/* Bottom Attribution Line */}
+        <div className="footer-bottom-bar">
+          <div className="footer-attribution">
+            <span>&copy; AurumAI 2026</span>
+            <span className="footer-divider">•</span>
+            <span className="footer-creator-text">
+              Crafted with <span className="pulsing-heart">❤️</span> by{" "}
+              <a
+                href="https://in.linkedin.com/in/harshkumarg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="creator-name-link"
+              >
+                Harsh Kumar Gupta
+              </a>
+              , AI/ML Engineer
+            </span>
+          </div>
+
+          <div className="footer-meta-links">
+            <span className="footer-version-tag">Release v2.4 (Enterprise Production)</span>
+            <a
+              href="https://github.com/HarshkumarG007/AurumAI"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer-repo-link"
+            >
+              GitHub Repository ↗
+            </a>
+          </div>
         </div>
       </footer>
     </div>

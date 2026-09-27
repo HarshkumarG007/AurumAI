@@ -6,13 +6,14 @@
 ---
 
 ## Table of Contents
-1. [Executive Summary & Product Persona](#1-executive-summary--product-persona)
-2. [End-to-End System Architecture](#2-end-to-end-system-architecture)
-3. [Visual UI/UX Guide & Procedural Step-by-Step Walkthrough (With Screenshots)](#3-visual-uiux-guide--procedural-step-by-step-walkthrough-with-screenshots)
+1. [Interactive Documentation Ecosystem & Architecture Link Tree](#1-interactive-documentation-ecosystem--architecture-link-tree)
+2. [Executive Summary & Product Persona](#2-executive-summary--product-persona)
+3. [End-to-End System Architecture](#3-end-to-end-system-architecture)
+4. [Visual UI/UX Guide & Procedural Step-by-Step Walkthrough (With Screenshots)](#4-visual-uiux-guide--procedural-step-by-step-walkthrough-with-screenshots)
    - [Responsive Multi-Device Support Matrix (iPhone, Android, Tablets, Laptops, 4K Smart TVs)](#responsive-multi-device-support-matrix)
    - [Part A: Web Command Center Step-by-Step Guide](#part-a-web-command-center-step-by-step-guide)
    - [Part B: Telegram Voice Companion Walkthrough (Real Client Screenshots)](#part-b-telegram-voice-companion-walkthrough-real-client-screenshots)
-4. [Phase-by-Phase Engineering Deep Dive](#4-phase-by-phase-engineering-deep-dive)
+5. [Phase-by-Phase Engineering Deep Dive](#5-phase-by-phase-engineering-deep-dive)
    - [Phase 1: Database Schema & Real-Time Ingestion Engine](#phase-1-database-schema--real-time-ingestion-engine)
    - [Phase 2: Secure Webhook & Asynchronous Telegram Gateway](#phase-2-secure-webhook--asynchronous-telegram-gateway)
    - [Phase 3: AI Agent, Tool Calling & Financial Safety Invariants](#phase-3-ai-agent-tool-calling--financial-safety-invariants)
@@ -26,14 +27,72 @@
    - [Phase 11: Red Team Privacy & Security Audit](#phase-11-red-team-privacy--security-audit)
    - [Phase 12: Daily Morning Digest & Vercel Cron Integration](#phase-12-daily-morning-digest--vercel-cron-integration)
    - [Phase 13: CI/CD Pipeline Resilience & FFmpeg Runner Integration](#phase-13-cicd-pipeline-resilience--ffmpeg-runner-integration)
-5. [The 24 Numbered Engineering Rules](#5-the-24-numbered-engineering-rules)
-6. [Local Development, Testing & Verification Guide (48/48 Tests Passing)](#6-local-development-testing--verification-guide)
-7. [Repository Structure](#7-repository-structure)
-8. [License & Credits](#8-license--credits)
+6. [The 30 Numbered Engineering Rules](#6-the-30-numbered-engineering-rules)
+7. [Local Development, Testing & Verification Guide (48/48 Tests Passing)](#7-local-development-testing--verification-guide)
+8. [Repository Structure](#8-repository-structure)
+9. [License, Attribution & Developer Network](#9-license-attribution--developer-network)
 
 ---
 
-## 1. Executive Summary & Product Persona
+## 1. Interactive Documentation Ecosystem & Architecture Link Tree
+
+The Aurum AI codebase is engineered with institutional rigor, featuring a complete documentation hierarchy organized across five contextual domains. Each document serves a dedicated operational function—from mathematical bullion specs and econometric analysis to security audits and first-person engineering retrospective.
+
+### Documentation Context Clusters
+
+```mermaid
+graph TD
+    classDef master fill:#1e1a12,stroke:#D4AF37,stroke-width:2px,color:#FFF8DC;
+    classDef quant fill:#111a24,stroke:#60A5FA,stroke-width:2px,color:#E0F2FE;
+    classDef sec fill:#211214,stroke:#F87171,stroke-width:2px,color:#FFE4E6;
+    classDef agent fill:#1a1528,stroke:#C084FC,stroke-width:2px,color:#F3E8FF;
+    classDef prod fill:#122118,stroke:#4ADE80,stroke-width:2px,color:#DCFCE7;
+
+    ROOT["🏛️ Aurum AI Ecosystem Core"]:::master
+    ROOT --> MANUAL["README.md<br/>Master Architecture & Manual"]:::master
+    ROOT --> JOURNAL["JOURNAL_ARTICLE.md<br/>First-Person Monograph & Retrospective"]:::master
+
+    ROOT --> QUANT["📐 Quantitative Finance & Econometrics"]:::quant
+    QUANT --> SPEC["Aurum_AI_Specification.md<br/>Landed Tax & Bullion Formulas"]:::quant
+    QUANT --> EDA["EDA_REPORT.md<br/>782-Day Cross-Asset Econometrics"]:::quant
+
+    ROOT --> SEC["🛡️ Security, Privacy & Invariants"]:::sec
+    SEC --> AUDIT["RED_TEAM_AUDIT_REPORT.md<br/>Red Team Privacy & Timing-Safe Audit"]:::sec
+    SEC --> RULES_INV["rules.md<br/>Operational Invariants & Boundaries"]:::sec
+
+    ROOT --> AI_AGENT["🤖 AI Prompt Architecture & Build System"]:::agent
+    AI_AGENT --> PROMPTS["Aurum_AI_Build_Rules_and_Prompt.md<br/>Master 30 Rules & Agent Prompts"]:::agent
+    AI_AGENT --> ARCH["architecture.md<br/>System Topology & Cloud Blueprint"]:::agent
+
+    ROOT --> PROD_ROADMAP["📋 Product Management & Memory"]:::prod
+    PROD_ROADMAP --> PRD["PRD.md<br/>Product Requirements & Hindi Persona"]:::prod
+    PROD_ROADMAP --> DESIGN["design.md<br/>Obsidian-Gold Design System"]:::prod
+    PROD_ROADMAP --> TASK["task.md<br/>13-Phase Backlog & 48-Test Checklist"]:::prod
+    PROD_ROADMAP --> MEM["memory.md<br/>Institutional Memory & Quota Log"]:::prod
+```
+
+### Complete Link Tree & Documentation Directory
+
+Explore the complete technical literature of Aurum AI through this interactive directory:
+
+| Badge / Category | Document & File Link | Context & Focus Area | Highlights & Why You Should Read It | Primary Audience |
+|---|---|---|---|---|
+| 🏛️ **Master Manual** | [`README.md`](./README.md) | **End-to-End System Manual & Operations Guide** | The central operational guide for Aurum AI. Contains the 13-phase architectural deep dive, responsive multi-device matrix, real client screenshots, local setup instructions, and the 48/48 automated test suite summary. | All Engineers & Reviewers |
+| 📖 **Technical Monograph** | [`JOURNAL_ARTICLE.md`](./JOURNAL_ARTICLE.md) | **First-Person Engineering Retrospective & Whitepaper** | A 15-section exhaustive personal memoir by Lead AI/ML Engineer **Harsh Kumar Gupta**. Narrates the entire journey from household dilemma to 782-day econometric data mining, walk-forward holdout results, -4.63 Sharpe ratio friction proof, and architectural trade-offs. | AI/ML Engineers, Quants & Architects |
+| 📐 **Bullion Specification** | [`Aurum_AI_Specification.md`](./Aurum_AI_Specification.md) | **Mathematical Pricing & Physical Bullion Invariants** | Precise mathematical formulas for converting international spot ($/oz) to landed Indian retail INR per 10g with 15% customs import duty and 3% physical GST ($1.18\times$ statutory multiplier), 22K jewelry ratios, and alert state transitions. | Quants, Financial Analysts, Backend Devs |
+| 🤖 **Agent Build Architecture** | [`Aurum_AI_Build_Rules_and_Prompt.md`](./Aurum_AI_Build_Rules_and_Prompt.md) | **30 Engineering Rules & AI Prompt Masterfile (v3.0)** | The definitive master blueprint for AI coding agents. Specifies the 30 strict numbered engineering rules, Gemini 2.5 Flash system prompt declarations, tool-calling interfaces, non-directive Hindi tone guards, and 13 execution phases. | LLM Engineers, Prompt Architects |
+| 🛡️ **Red Team Security** | [`RED_TEAM_AUDIT_REPORT.md`](./RED_TEAM_AUDIT_REPORT.md) | **Zero-Knowledge Privacy, Security & Threat Audit** | Rigorous Red Team security assessment covering Exif metadata stripping from screenshots, constant-time authentication (`crypto.timingSafeEqual`), payload size guards (50 KB), rate limiting, and 100% credential scrubbing. | Security Engineers, DevSecOps |
+| 📊 **Econometric Research** | [`EDA_REPORT.md`](./EDA_REPORT.md) | **782-Trading-Day Multi-Asset Statistical Profiling** | Statistical analysis of gold, silver, crude oil, Nifty 50, and USD/INR. Features Augmented Dickey-Fuller (ADF) test statistics ($p$-values), excess kurtosis (8.04 Fat Tails), and covariance matrices proving why linear forecasting fails. | Data Scientists, Econometricians |
+| 🏗️ **System Topology** | [`architecture.md`](./architecture.md) | **Decoupled Lifecycles & Async Cloud Blueprint** | Complete system architecture mapping out the hourly background ingestion lifecycle on GitHub Actions, the real-time Next.js webhook gateway on Vercel, Edge-TTS audio transcoding, and zero-cost free-tier topology. | Cloud Architects, DevOps |
+| 📋 **Product Requirements** | [`PRD.md`](./PRD.md) | **Product Requirements & Cultural Hindi Persona** | Defines the target household user persona, Hindi conversational design, functional requirements for affordability and alert tools, accessibility standards, and statutory non-directive disclaimer guidelines. | Product Managers, UX Designers |
+| ✨ **Design Tokens & UI** | [`design.md`](./design.md) | **Obsidian-Gold Design System & Micro-Interactions** | Visual design specifications including color palette (Obsidian `#0A0A0C`, Metallic Gold `#D4AF37`, Silver `#E5E7EB`), glassmorphism cards, fluid typography (`clamp()`), and responsive multi-device breakpoints. | Frontend Engineers, UI/UX Designers |
+| 🗺️ **Sprint Roadmap** | [`task.md`](./task.md) | **Master 13-Phase Backlog & Verification Checklist** | Real-time tracking of all 13 project phases, user stories, acceptance criteria, and the 48 verified automated test suites (18 Python + 30 TypeScript). | Project Leads, QA Engineers |
+| 🧠 **Institutional Memory** | [`memory.md`](./memory.md) | **Engineering Decisions Log & Free-Tier Quota Ledger** | Persistent memory of every engineering choice, architectural challenge resolved (Windows charmap encoding, edge-tts streaming, FFmpeg CI runner installation), and live provider quota tracking. | Core Maintainers |
+| ⚖️ **Operational Rules** | [`rules.md`](./rules.md) | **System Invariants & Operating Guidelines** | Compact operational cheat-sheet of hard system invariants: deterministic financial math, identity binding (`chat_id`), ephemeral voice cleanup, and zero-cost infrastructure mandates. | Maintainers & Contributors |
+
+---
+
+## 2. Executive Summary & Product Persona
 
 ### The Layman's Analogy
 Imagine having a thoughtful family member who keeps an eye on the market news for your household. Every morning, they check what gold and silver are trading for, calculate what it actually costs when landed in India with taxes and duties, and explain in warm, everyday Hindi whether today's price is higher or lower than the past two weeks' average. Crucially, **they never tell you to buy or sell.** They give you the clear facts so you can make up your own mind.
@@ -62,7 +121,7 @@ Aurum AI enforces a strict boundary between **deterministic financial computatio
 
 ---
 
-## 2. End-to-End System Architecture
+## 3. End-to-End System Architecture
 
 Aurum AI operates across two decoupled lifecycles:
 1. **Background Ingestion & Alerting (Hourly):** Automated GitHub Actions cron pulling global quotes, calculating domestic retail estimates, writing to Supabase, and dispatching alert notifications.
@@ -148,7 +207,7 @@ flowchart TD
 
 ---
 
-## 3. Visual UI/UX Guide & Procedural Step-by-Step Walkthrough (With Screenshots)
+## 4. Visual UI/UX Guide & Procedural Step-by-Step Walkthrough (With Screenshots)
 
 Aurum AI delivers an institutional-grade, multi-platform user experience across both a **responsive Web Command Center** and a **voice-native Telegram companion**.
 
@@ -292,7 +351,7 @@ The Web Command Center is built with vanilla CSS glassmorphism and fluid typogra
 
 ---
 
-## 4. Phase-by-Phase Engineering Deep Dive
+## 5. Phase-by-Phase Engineering Deep Dive
 
 ---
 
@@ -1220,7 +1279,7 @@ flowchart TD
 
 ---
 
-## 5. The 24 Numbered Engineering Rules
+## 6. The 30 Numbered Engineering Rules
 
 | Rule ID | Rule Summary | Implementation Reference |
 |---|---|---|
@@ -1230,7 +1289,7 @@ flowchart TD
 | **RULE-004** | Webhook secret token verified; mismatch returns 200 OK silently. | [`app/api/telegram/webhook/route.ts`](./app/api/telegram/webhook/route.ts) |
 | **RULE-005** | Instant 200 OK acknowledgment; async processing via `after()`. | [`app/api/telegram/webhook/route.ts`](./app/api/telegram/webhook/route.ts) |
 | **RULE-006** | Voice encoded via FFmpeg with libopus into OGG container. | [`ml_pipeline/tts_convert.py`](./ml_pipeline/tts_convert.py) |
-| **RULE-007** | Strictly zero-cost / free-tier infrastructure. | Architecture Stack (§2) |
+| **RULE-007** | Strictly zero-cost / free-tier infrastructure. | Architecture Stack (§3) |
 | **RULE-008** | Hourly price fetch runs on GitHub Actions, never Vercel Cron. | [`.github/workflows/hourly_fetch.yml`](./.github/workflows/hourly_fetch.yml) |
 | **RULE-009** | User tools take `chat_id` only from server context, never LLM. | [`agent/tools/market_tools.ts`](./agent/tools/market_tools.ts) |
 | **RULE-010** | Parameterized SQL queries only. Zero string interpolation. | [`ml_pipeline/fetch.py`](./ml_pipeline/fetch.py) |
@@ -1248,10 +1307,16 @@ flowchart TD
 | **RULE-022** | System prompt treats user input strictly as data, not instructions. | [`agent/prompts/system_prompt.ts`](./agent/prompts/system_prompt.ts) |
 | **RULE-023** | Recurring keepalive prevents 60-day Actions auto-disablement. | [`.github/workflows/keepalive_check.yml`](./.github/workflows/keepalive_check.yml) |
 | **RULE-024** | No components built without a driving roadmap task. | Repository Scope |
+| **RULE-025** | Holdout Testing Invariant: Strictly unseen out-of-sample data with zero lookahead. | [`ml_pipeline/evaluate_real_holdout.py`](./ml_pipeline/evaluate_real_holdout.py) |
+| **RULE-026** | Physical Bullion Friction Invariant: Deduct 3% GST, 1% spread, and slippage. | [`ml_pipeline/evaluate_real_holdout.py`](./ml_pipeline/evaluate_real_holdout.py) |
+| **RULE-027** | Red Team Privacy & Ephemeral Handling: Zero PII, stripped Exif, zero token persistence. | [`RED_TEAM_AUDIT_REPORT.md`](./RED_TEAM_AUDIT_REPORT.md) |
+| **RULE-028** | Timing-Safe Authentication: Webhook and cron token comparison via `crypto.timingSafeEqual`. | [`app/api/telegram/webhook/route.ts`](./app/api/telegram/webhook/route.ts) |
+| **RULE-029** | Data Minimization & Retention: Raw market ticks pruned after 90 days; no message metadata logged. | [`app/api/cron/daily-digest/route.ts`](./app/api/cron/daily-digest/route.ts) |
+| **RULE-030** | CI/CD Runner Provisioning: Provision system-level binaries (FFmpeg) with defensive local skips. | [`.github/workflows/ml_pipeline_eval.yml`](./.github/workflows/ml_pipeline_eval.yml) |
 
 ---
 
-## 6. Local Development, Testing & Verification Guide
+## 7. Local Development, Testing & Verification Guide (48/48 Tests Passing)
 
 ### 1. Prerequisites
 - **Node.js:** v20.x or v22.x
@@ -1330,7 +1395,7 @@ TOTAL VERIFIED AUTOMATED TEST SUITE:                                           4
 
 ---
 
-## 7. Repository Structure
+## 8. Repository Structure
 
 ```
 aurum-ai/
@@ -1370,16 +1435,16 @@ aurum-ai/
 │   │       └── webhook/
 │   │           ├── handler.ts             # Webhook update dispatcher & user enrollment
 │   │           └── route.ts               # Secret-verified async Telegram webhook
-│   ├── globals.css                        # Obsidian-Gold design system & responsive queries
+│   ├── globals.css                        # Obsidian-Gold design system, shimmering animations & responsive queries
 │   ├── layout.tsx                         # Root layout with SEO and OpenGraph metadata
-│   └── page.tsx                           # Full-stack command center dashboard
+│   └── page.tsx                           # Full-stack command center dashboard with luxury animated footer
 ├── database/
 │   └── schema.sql                         # PostgreSQL schema with constraints & defaults
 ├── docs/
 │   └── screenshots/
-│       ├── telegram_voice_start.jpg       # Telegram /start and native voice waveform
-│       ├── telegram_affordability_query.jpg # Telegram affordability calculation
-│       ├── telegram_silver_query.jpg      # Telegram silver price & MA comparison
+│       ├── telegram_voice_start.jpg       # Telegram /start and native voice waveform (Exif scrubbed)
+│       ├── telegram_affordability_query.jpg # Telegram affordability calculation (Exif scrubbed)
+│       ├── telegram_silver_query.jpg      # Telegram silver price & MA comparison (Exif scrubbed)
 │       ├── web_command_center_hero.png    # Web dashboard hero & live bullion tickers
 │       ├── web_chart_calculator.png       # 30-Day SVG chart & unit affordability calculator
 │       ├── web_ml_gating_lab.png          # Quantitative ML gating lab & ADF stationarity table
@@ -1393,7 +1458,7 @@ aurum-ai/
 │   │   ├── advanced_ml_benchmark.py       # 4-model walk-forward benchmark
 │   │   └── backtest.py                    # Foundational walk-forward validator
 │   ├── alert_engine.py                    # Target hit & MA deviation alert evaluator
-│   ├── evaluate_real_holdout.py           # Real-data out-of-sample holdout test
+│   ├── evaluate_real_holdout.py           # Real-data out-of-sample holdout test (-4.63 Sharpe proof)
 │   ├── fetch.py                           # yfinance market ingestion & cache fallback
 │   ├── fetch_wrapper.ts                   # Landed price mathematical helper
 │   ├── moving_averages.py                 # Deterministic SMA calculator (MA7, 15, 30)
@@ -1414,21 +1479,37 @@ aurum-ai/
 │   ├── test_phase7_threat_model.mjs       # Phase 7: Threat model verification test suite
 │   └── test_red_team_audit.mjs            # Red Team timing, DoS, and IDOR test suite
 ├── .env.example                           # Configuration blueprint
-├── .gitignore                             # Git ignore rules
-├── memory.md                              # Persistent engineering & decision log
+├── .gitignore                             # Git ignore rules (protecting .env and local caches)
 ├── next.config.mjs                        # Next.js security headers & server configuration
 ├── package.json                           # Node.js dependencies & scripts
-├── task.md                                # Master task roadmap & status checklist
 ├── tsconfig.json                          # TypeScript compiler options
 ├── vercel.json                            # Vercel Cron configuration (09:00 AM IST daily)
-├── EDA_REPORT.md                          # Econometric profiling & stationarity report
-├── RED_TEAM_AUDIT_REPORT.md               # Red Team security & privacy audit report
-└── README.md                              # Comprehensive project documentation
+├── README.md                              # Comprehensive project documentation & operations manual
+├── JOURNAL_ARTICLE.md                     # First-person monograph & technical whitepaper (Harsh Kumar Gupta)
+├── Aurum_AI_Specification.md              # Mathematical pricing, physical bullion & landed duty specification
+├── Aurum_AI_Build_Rules_and_Prompt.md     # 30 Engineering Rules & AI Prompt Masterfile (v3.0)
+├── RED_TEAM_AUDIT_REPORT.md               # Red Team security, privacy & OPSEC audit report
+├── EDA_REPORT.md                          # Econometric profiling & stationarity report (782 trading days)
+├── architecture.md                        # Decoupled lifecycles & async cloud blueprint
+├── rules.md                               # System invariants & operating guidelines
+├── PRD.md                                 # Product requirements document & cultural Hindi persona
+├── design.md                              # Obsidian-Gold design system & responsive tokens
+├── task.md                                # Master 13-phase backlog & 48/48 test verification checklist
+└── memory.md                              # Institutional engineering memory & free-tier quota ledger
 ```
 
 ---
 
-## 8. License & Credits
+## 9. License, Attribution & Developer Network
 
-- **License:** Apache License 2.0.
-- **Engineered for:** Trustworthy, voice-first market context for family members.
+- **License:** [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). Free and open-source for personal and community utility.
+- **Architect & Lead AI/ML Engineer:** **Harsh Kumar Gupta**
+- **Developer Profiles & Connect:**
+  - 💼 **LinkedIn Profile:** [Harsh Kumar Gupta on LinkedIn](https://in.linkedin.com/in/harshkumarg) (`https://in.linkedin.com/in/harshkumarg`)
+  - 🐙 **GitHub Profile & Repository:** [HarshkumarG007 on GitHub](https://github.com/HarshkumarG007) (`https://github.com/HarshkumarG007/AurumAI`)
+  - 🌐 **Live Web Command Center:** [https://aurumai-opal.vercel.app](https://aurumai-opal.vercel.app)
+  - 🤖 **Live Telegram Voice Companion:** [@AurumAI_Bot](https://t.me/AurumAI_Bot)
+- **Production Attribution:**  
+  `CC AurumAI 2026 — Made with ❤️ by Harsh Kumar Gupta, AI/ML Engineer`
+- **Statutory Financial Disclaimer:**  
+  Aurum AI (औरम एआई) is an informational educational companion engineered strictly for Indian landed bullion tracking. It does not provide SEBI-registered investment advice, portfolio management, or directive buy/sell recommendations. Bullion markets are volatile and subject to physical dealer premiums, local manufacturing margins, and market risk. Always verify physical gold and silver rates with a local certified jeweler or authorized bullion dealer before executing physical transactions.

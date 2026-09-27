@@ -69,21 +69,21 @@ RULE-024: Do not add a component, service, or abstraction that has no concrete t
 
 ## Part 2 — Implementation Roadmap (phases, objective, acceptance criteria)
 
-| Phase | Objective | Acceptance Criteria |
-|---|---|---|
-| **1. Database & Ingestion** | Schema live; Python fetch script pulling real prices, computing MA7/15/30, writing to Supabase | Schema applies cleanly; a manual run produces a row with all MA columns populated and a hand-computed spot-check of one MA value matches |
-| **2. Webhook & Bot Setup** | Telegram bot registered; webhook receives and acks updates; secret token verified | A test message round-trips end-to-end; a request with a wrong/missing secret token is rejected per RULE-004 |
-| **3. LLM Integration & Tool Calling** | Gemini wired with the four tools from the spec's §5 | For 5 varied test questions, confirm the correct tool is called and no response contains an un-tool-sourced number (RULE-001 checked directly, not assumed) |
-| **4. Voice Pipeline** | Edge-TTS + FFmpeg producing valid Telegram voice notes | A generated `.ogg` file is confirmed to play as a native voice note in an actual Telegram client, not just "the file was created" |
-| **5. Alert Engine** | Target-hit and MA-deviation rules running inside the hourly job, with suppression | Deliberately set a target that should trigger; confirm exactly one alert fires, and confirm a second identical condition within 48h is suppressed |
-| **6. Trend Signal — gated, optional** | Only start if Phases 1–5 have run stably for several weeks | Walk-forward backtest completed and reported honestly; `trend_signal_validated` only set TRUE if the backtest actually shows edge; if not, this phase's deliverable is the honest negative finding, not a shipped feature |
-| **7. Deployment & Hardening** | Full threat-model checklist reviewed; free-tier assumptions re-verified against current docs at deploy time, not just at design time | Every row in the Threat Model table (spec §9) has a confirmed, tested mitigation, not just a documented intention |
+| Phase                                 | Objective                                                                                                                            | Acceptance Criteria                                                                                                                                                                                                       |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1. Database & Ingestion**           | Schema live; Python fetch script pulling real prices, computing MA7/15/30, writing to Supabase                                       | Schema applies cleanly; a manual run produces a row with all MA columns populated and a hand-computed spot-check of one MA value matches                                                                                  |
+| **2. Webhook & Bot Setup**            | Telegram bot registered; webhook receives and acks updates; secret token verified                                                    | A test message round-trips end-to-end; a request with a wrong/missing secret token is rejected per RULE-004                                                                                                               |
+| **3. LLM Integration & Tool Calling** | Gemini wired with the four tools from the spec's §5                                                                                  | For 5 varied test questions, confirm the correct tool is called and no response contains an un-tool-sourced number (RULE-001 checked directly, not assumed)                                                               |
+| **4. Voice Pipeline**                 | Edge-TTS + FFmpeg producing valid Telegram voice notes                                                                               | A generated `.ogg` file is confirmed to play as a native voice note in an actual Telegram client, not just "the file was created"                                                                                         |
+| **5. Alert Engine**                   | Target-hit and MA-deviation rules running inside the hourly job, with suppression                                                    | Deliberately set a target that should trigger; confirm exactly one alert fires, and confirm a second identical condition within 48h is suppressed                                                                         |
+| **6. Trend Signal — gated, optional** | Only start if Phases 1–5 have run stably for several weeks                                                                           | Walk-forward backtest completed and reported honestly; `trend_signal_validated` only set TRUE if the backtest actually shows edge; if not, this phase's deliverable is the honest negative finding, not a shipped feature |
+| **7. Deployment & Hardening**         | Full threat-model checklist reviewed; free-tier assumptions re-verified against current docs at deploy time, not just at design time | Every row in the Threat Model table (spec §9) has a confirmed, tested mitigation, not just a documented intention                                                                                                         |
 
 ---
 
 ## Part 3 — AI Master Build Prompt
 
-*(This section is the literal, self-contained prompt — copy everything between the two lines below and hand it to Claude Code, Cursor, Antigravity, or any other coding agent as its starting instruction.)*
+_(This section is the literal, self-contained prompt — copy everything between the two lines below and hand it to Claude Code, Cursor, Antigravity, or any other coding agent as its starting instruction.)_
 
 ---
 
@@ -100,3 +100,5 @@ Test the audio pipeline (Phase 4) against an actual Telegram client, not just "t
 Maintain a decision/progress log as you work: what you built, what you verified, what you assumed and why, and any free-tier claim you checked against current provider documentation (RULE-019) with its source and date. If you're unsure whether something is safe to ship given the rules above, stop and ask rather than shipping the more impressive-sounding version.
 
 ---
+
+1
