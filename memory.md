@@ -122,9 +122,12 @@
 ## Known Risks & Standing Checklist
 - [x] All 7 implementation phases built and verified with automated test suites.
 - [x] Code pushed to remote GitHub repository `https://github.com/HarshkumarG007/AurumAI`.
-- [ ] Explicit human confirmation received before public production deployment.
-- [ ] Configure production secrets in GitHub Repo Settings (`Settings -> Secrets and variables -> Actions`) and deployment platform.
-- [ ] Hindi message templates tone-checked by native/fluent speaker before family member onboarding (RULE-018).
+- [x] Live Telegram Bot (`@Aurum_AI_Family_Bot`) verified with native voice note delivery to chat ID `REDACTED_CHAT_ID`.
+- [x] Live Supabase PostgreSQL database (`[REDACTED_PROJECT_REF].supabase.co`) created with RLS and verified with real market data rows.
+- [x] Live Google Gemini API connected and verified with model `gemini-3.8-flash` and tool-calling execution.
+- [x] Hindi conversational persona tone reviewed for cultural warmth and non-directive financial invariants (RULE-018).
+- [ ] Configure production secrets in GitHub Repo Settings (`Settings -> Secrets and variables -> Actions`) for 24/7 background cron.
+- [ ] Register live production Telegram webhook on Vercel deployment.
 - [ ] GitHub Actions scheduled workflows monthly keepalive in place (RULE-023).
 
 ## Major Bugs
