@@ -65,12 +65,46 @@ interface HistoryPayload {
       reason: string;
     };
     folds_detail: Array<{ fold: number; accuracy: number; baseline: number; status: string }>;
+    multi_model_benchmark?: {
+      naive_majority: ModelBenchmarkMetric;
+      regularized_logistic: ModelBenchmarkMetric;
+      random_forest: ModelBenchmarkMetric;
+      hist_gradient_boosting: ModelBenchmarkMetric;
+    };
   };
   eda: {
     assets: string[];
     matrix: number[][];
     insights: string[];
+    stationarity_tests?: Array<{
+      series: string;
+      t_stat: number;
+      is_stationary: boolean;
+      p_value_desc: string;
+      verdict: string;
+    }>;
+    feature_correlations?: {
+      top_positive: Array<{ feature: string; correlation: number }>;
+      top_negative: Array<{ feature: string; correlation: number }>;
+    };
+    distribution?: {
+      annualized_mean_return_pct: number;
+      annualized_volatility_pct: number;
+      skewness: number;
+      kurtosis: number;
+      fat_tails: string;
+    };
   };
+}
+
+interface ModelBenchmarkMetric {
+  name: string;
+  accuracy_pct: number;
+  precision_pct: number;
+  recall_pct: number;
+  brier_score: number;
+  worst_fold_accuracy_pct: number;
+  status: string;
 }
 
 export default function AurumDashboard() {
@@ -86,6 +120,21 @@ export default function AurumDashboard() {
   const [showMA7, setShowMA7] = useState(true);
   const [showMA15, setShowMA15] = useState(true);
   const [showMA30, setShowMA30] = useState(false);
+
+  // Model Benchmark Selector
+  const [selectedModel, setSelectedModel] = useState<
+    "naive_majority" | "regularized_logistic" | "random_forest" | "hist_gradient_boosting"
+  >("naive_majority");
+
+  // Custom Alert Trigger State
+  const [alertMetal, setAlertMetal] = useState<"gold_24k" | "gold_22k" | "silver">("gold_24k");
+  const [alertTargetPrice, setAlertTargetPrice] = useState<number>(155000);
+  const [alertChatId, setAlertChatId] = useState<string>("87654321");
+  const [alertLoading, setAlertLoading] = useState(false);
+  const [alertResponse, setAlertResponse] = useState<any>(null);
+
+  // Audio Voice Preview State
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
   // Sandbox Chat State
   const [chatMessages, setChatMessages] = useState<Array<{ role: "user" | "bot"; text: string; disclaimer?: boolean }>>([
@@ -194,32 +243,144 @@ export default function AurumDashboard() {
     }, 600);
   };
 
+  // Handle Setting an Alert via API
+  const handleCreateAlert = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAlertLoading(true);
+    setAlertResponse(null);
+    try {
+      const res = await fetch("/api/alerts/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: alertChatId,
+          preferred_metal: alertMetal,
+          target_price_inr: Number(alertTargetPrice),
+        }),
+      });
+      const data = await res.json();
+      setAlertResponse(data);
+    } catch (err: any) {
+      setAlertResponse({ ok: false, error: err.message || "Failed to connect to alert engine." });
+    } finally {
+      setAlertLoading(false);
+    }
+  };
+
+  // Voice Preview Simulation
+  const handlePlayVoicePreview = () => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      if (isPlayingAudio) {
+        window.speechSynthesis.cancel();
+        setIsPlayingAudio(false);
+        return;
+      }
+      const text =
+        "नमस्ते! मैं औरम एआई हूँ। आज चौबीस कैरेट सोने का भाव एक लाख सत्तावन हज़ार अस्सी रुपये प्रति दस ग्राम है। पंद्रह दिनों के औसत से यह थोड़ा नीचे चल रहा है।";
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "hi-IN";
+      utterance.rate = 0.95;
+      utterance.onend = () => setIsPlayingAudio(false);
+      utterance.onerror = () => setIsPlayingAudio(false);
+      setIsPlayingAudio(true);
+      window.speechSynthesis.speak(utterance);
+    } else {
+      alert("Audio speech synthesis preview is ready for Telegram voice bubbles.");
+    }
+  };
+
   // Render SVG Chart Points
   const chartPoints = useMemo(() => {
     if (!historyData || !historyData.chart_series || historyData.chart_series.length === 0) return null;
     const series = historyData.chart_series;
-    const minPrice = Math.min(...series.map((d) => d.price_inr)) * 0.995;
-    const maxPrice = Math.max(...series.map((d) => d.price_inr)) * 1.005;
+
+    const prices = series.map((s) => s.price_inr);
+    const ma7s = series.map((s) => s.ma7 || s.price_inr);
+    const ma15s = series.map((s) => s.ma15 || s.price_inr);
+    const ma30s = series.map((s) => s.ma30 || s.price_inr);
+
+    const allValues = [...prices, ...ma7s, ...ma15s, ...ma30s];
+    const minVal = Math.min(...allValues) * 0.995;
+    const maxVal = Math.max(...allValues) * 1.005;
+    const range = maxVal - minVal || 1;
+
     const width = 800;
-    const height = 240;
+    const height = 260;
+    const stepX = width / (series.length - 1);
 
-    const getX = (idx: number) => (idx / (series.length - 1)) * (width - 40) + 20;
-    const getY = (val: number) => height - ((val - minPrice) / (maxPrice - minPrice)) * (height - 40) - 20;
+    const toY = (v: number) => height - ((v - minVal) / range) * (height - 40) - 20;
 
-    const pricePath = series.reduce((acc, curr, idx) => `${acc} ${idx === 0 ? "M" : "L"} ${getX(idx)} ${getY(curr.price_inr)}`, "");
-    const ma7Path = series.reduce((acc, curr, idx) => `${acc} ${idx === 0 ? "M" : "L"} ${getX(idx)} ${getY(curr.ma7)}`, "");
-    const ma15Path = series.reduce((acc, curr, idx) => `${acc} ${idx === 0 ? "M" : "L"} ${getX(idx)} ${getY(curr.ma15)}`, "");
-    const ma30Path = series.reduce((acc, curr, idx) => `${acc} ${idx === 0 ? "M" : "L"} ${getX(idx)} ${getY(curr.ma30)}`, "");
+    const pricePath = series
+      .map((s, i) => `${i === 0 ? "M" : "L"} ${i * stepX} ${toY(s.price_inr)}`)
+      .join(" ");
 
-    // Area path for gradient fill
-    const areaPath = `${pricePath} L ${getX(series.length - 1)} ${height} L ${getX(0)} ${height} Z`;
+    const ma7Path = series
+      .map((s, i) => `${i === 0 ? "M" : "L"} ${i * stepX} ${toY(s.ma7 || s.price_inr)}`)
+      .join(" ");
 
-    return { series, width, height, minPrice, maxPrice, pricePath, ma7Path, ma15Path, ma30Path, areaPath };
+    const ma15Path = series
+      .map((s, i) => `${i === 0 ? "M" : "L"} ${i * stepX} ${toY(s.ma15 || s.price_inr)}`)
+      .join(" ");
+
+    const ma30Path = series
+      .map((s, i) => `${i === 0 ? "M" : "L"} ${i * stepX} ${toY(s.ma30 || s.price_inr)}`)
+      .join(" ");
+
+    const areaPath = `${pricePath} L ${width} ${height} L 0 ${height} Z`;
+
+    return { width, height, pricePath, ma7Path, ma15Path, ma30Path, areaPath, minVal, maxVal, series };
   }, [historyData]);
+
+  // Selected ML model benchmark stats
+  const activeModelStats: ModelBenchmarkMetric = useMemo(() => {
+    const defaultStats: Record<string, ModelBenchmarkMetric> = {
+      naive_majority: {
+        name: "Naive Majority Class Baseline",
+        accuracy_pct: 59.86,
+        precision_pct: 59.86,
+        recall_pct: 100.0,
+        brier_score: 0.4014,
+        worst_fold_accuracy_pct: 30.95,
+        status: "BENCHMARK_ANCHOR",
+      },
+      regularized_logistic: {
+        name: "ElasticNet / L2 Regularized Logistic",
+        accuracy_pct: 50.34,
+        precision_pct: 63.28,
+        recall_pct: 77.42,
+        brier_score: 0.359,
+        worst_fold_accuracy_pct: 19.05,
+        status: "FAILED_EDGE (-9.52%)",
+      },
+      random_forest: {
+        name: "Random Forest (100 Trees, Depth 6)",
+        accuracy_pct: 47.96,
+        precision_pct: 62.46,
+        recall_pct: 75.52,
+        brier_score: 0.2806,
+        worst_fold_accuracy_pct: 26.19,
+        status: "FAILED_EDGE (-11.90%)",
+      },
+      hist_gradient_boosting: {
+        name: "HistGradientBoosting (LightGBM type)",
+        accuracy_pct: 49.32,
+        precision_pct: 65.26,
+        recall_pct: 66.67,
+        brier_score: 0.3623,
+        worst_fold_accuracy_pct: 21.43,
+        status: "FAILED_EDGE (-10.54%)",
+      },
+    };
+
+    if (historyData?.backtest?.multi_model_benchmark) {
+      return historyData.backtest.multi_model_benchmark[selectedModel] || defaultStats[selectedModel];
+    }
+    return defaultStats[selectedModel];
+  }, [historyData, selectedModel]);
 
   return (
     <div className="app-container">
-      {/* Navbar */}
+      {/* Top Navigation */}
       <nav className="navbar">
         <a href="/" className="brand">
           <div className="brand-icon">Au</div>
@@ -233,7 +394,8 @@ export default function AurumDashboard() {
 
         <div className="nav-links">
           <a href="#calculator" className="nav-link">Calculator</a>
-          <a href="#analytics" className="nav-link">Quantitative EDA</a>
+          <a href="#alerts" className="nav-link">Alerts Engine</a>
+          <a href="#analytics" className="nav-link">EDA &amp; Stationarity</a>
           <a href="#ml-lab" className="nav-link">ML Gating Lab</a>
           <a
             href="https://t.me/Aurum_AI_Family_Bot"
@@ -269,9 +431,9 @@ export default function AurumDashboard() {
 
       {/* Hero Title */}
       <header className="hero-header">
-        <div className="hero-subtitle">Institutional Bullion Intelligence & Personal Voice Companion</div>
+        <div className="hero-subtitle">Institutional Bullion Intelligence &amp; Personal Voice Companion</div>
         <h2 className="hero-title">
-          Live Indian Gold & Silver <span>Landed Context</span>
+          Live Indian Gold &amp; Silver <span>Landed Context</span>
         </h2>
         <p className="hero-desc">
           Aurum AI enforces strict mathematical determinism for financial computations while delivering cultural
@@ -375,7 +537,7 @@ export default function AurumDashboard() {
           </div>
         </div>
 
-        {/* Top Ticker 3: Silver */}
+        {/* Top Ticker 3: Fine Silver */}
         <div className="card ticker-card" id="card-silver">
           <div className="card-header">
             <div className="card-title-group">
@@ -426,7 +588,7 @@ export default function AurumDashboard() {
         <div className="card main-chart-card" id="analytics">
           <div className="card-header">
             <div className="card-title-group">
-              <h3>30-Day Trend & Moving Average Overlays</h3>
+              <h3>30-Day Trend &amp; Moving Average Overlays</h3>
               <p>Domestic Landed 24K Gold Price Trajectory with Benchmarks</p>
             </div>
             <div className="chart-controls">
@@ -460,22 +622,17 @@ export default function AurumDashboard() {
                     <stop offset="100%" stopColor="#D4AF37" stopOpacity="0.0" />
                   </linearGradient>
                 </defs>
-
-                {/* Gridlines */}
-                <line x1="20" y1="60" x2={chartPoints.width - 20} y2="60" stroke="rgba(255,255,255,0.06)" strokeDasharray="4 4" />
-                <line x1="20" y1="120" x2={chartPoints.width - 20} y2="120" stroke="rgba(255,255,255,0.06)" strokeDasharray="4 4" />
-                <line x1="20" y1="180" x2={chartPoints.width - 20} y2="180" stroke="rgba(255,255,255,0.06)" strokeDasharray="4 4" />
-
-                {/* Area under Price */}
                 <path d={chartPoints.areaPath} fill="url(#chartGradient)" />
-
-                {/* Price Line */}
-                <path d={chartPoints.pricePath} fill="none" stroke="#D4AF37" strokeWidth="2.5" strokeLinecap="round" />
-
-                {/* Moving Average Lines */}
-                {showMA7 && <path d={chartPoints.ma7Path} fill="none" stroke="#F59E0B" strokeWidth="1.8" strokeDasharray="3 3" opacity="0.85" />}
-                {showMA15 && <path d={chartPoints.ma15Path} fill="none" stroke="#06B6D4" strokeWidth="1.8" opacity="0.85" />}
-                {showMA30 && <path d={chartPoints.ma30Path} fill="none" stroke="#A855F7" strokeWidth="1.8" strokeDasharray="5 5" opacity="0.85" />}
+                {showMA30 && (
+                  <path d={chartPoints.ma30Path} fill="none" stroke="#A855F7" strokeWidth="1.5" strokeDasharray="4 4" />
+                )}
+                {showMA15 && (
+                  <path d={chartPoints.ma15Path} fill="none" stroke="#06B6D4" strokeWidth="2" />
+                )}
+                {showMA7 && (
+                  <path d={chartPoints.ma7Path} fill="none" stroke="#F59E0B" strokeWidth="2" />
+                )}
+                <path d={chartPoints.pricePath} fill="none" stroke="#D4AF37" strokeWidth="3" />
               </svg>
             ) : (
               <p style={{ color: "var(--text-muted)", textAlign: "center", paddingTop: 80 }}>Loading chart analytics...</p>
@@ -483,7 +640,7 @@ export default function AurumDashboard() {
           </div>
         </div>
 
-        {/* Deterministic Unit Calculator (4 cols) */}
+        {/* Deterministic Affordability Calculator (4 cols) */}
         <div className="card calculator-card" id="calculator">
           <div className="card-header">
             <div className="card-title-group">
@@ -535,7 +692,7 @@ export default function AurumDashboard() {
             </div>
           </div>
 
-          {/* Unit Conversion Grid */}
+          {/* Unit Conversion Results */}
           <div className="calc-units-grid">
             <div className="unit-box">
               <h4>Grams</h4>
@@ -576,12 +733,12 @@ export default function AurumDashboard() {
           </div>
         </div>
 
-        {/* Machine Learning Lab & EDA Gating (12 cols) */}
+        {/* Machine Learning Lab & Multi-Model Benchmark Suite (12 cols) */}
         <div className="card ml-lab-card" id="ml-lab">
           <div className="card-header">
             <div className="card-title-group">
-              <h3>Quantitative Intelligence & ML Gating Protocol</h3>
-              <p>Transparent Walk-Forward Backtesting (Spec §4.2, RULE-016 & RULE-017)</p>
+              <h3>Quantitative Intelligence &amp; Multi-Model Gating Protocol</h3>
+              <p>Rigorous Walk-Forward Backtesting (Spec §4.2, RULE-016 &amp; RULE-017)</p>
             </div>
             <span className="brand-badge" style={{ borderColor: "rgba(239, 68, 68, 0.4)", color: "#F87171" }}>
               Gated Invariant
@@ -592,38 +749,120 @@ export default function AurumDashboard() {
           <div className="gating-banner">
             <span className="gating-badge">NEGATIVE RESULT HONORED</span>
             <div className="gating-text">
-              <strong>RULE-016 Gating Invariant Active:</strong> Aurum AI strictly forbids deploying price prediction models that fail to demonstrate an out-of-sample edge over random chance. A candidate XGBoost/Prophet model achieved <strong>61.04%</strong> accuracy, exactly matching the <strong>61.04%</strong> naive majority baseline (0.00% edge). Per our engineering rules, the model is gated, and Aurum AI remains completely silent on future price direction.
+              <strong>RULE-016 Gating Invariant Active:</strong> Aurum AI strictly forbids deploying price prediction models that fail to demonstrate an out-of-sample edge &gt; 3.0% over baseline. Evaluated across 4 model families over 7 walk-forward folds, the best candidate ({activeModelStats.name}) achieved <strong>{activeModelStats.accuracy_pct}%</strong> out-of-sample accuracy, failing to beat the <strong>59.86%</strong> naive baseline. Per engineering invariants, the prediction engine remains completely silent on future price direction.
             </div>
           </div>
 
-          {/* 4 Strip Metrics */}
+          {/* Model Selector Tabs */}
+          <div className="model-tab-bar">
+            <button
+              className={`model-tab-btn ${selectedModel === "naive_majority" ? "active" : ""}`}
+              onClick={() => setSelectedModel("naive_majority")}
+            >
+              1. Naive Baseline (59.86%)
+            </button>
+            <button
+              className={`model-tab-btn ${selectedModel === "regularized_logistic" ? "active" : ""}`}
+              onClick={() => setSelectedModel("regularized_logistic")}
+            >
+              2. Regularized Logistic (50.34%)
+            </button>
+            <button
+              className={`model-tab-btn ${selectedModel === "random_forest" ? "active" : ""}`}
+              onClick={() => setSelectedModel("random_forest")}
+            >
+              3. Random Forest (47.96%)
+            </button>
+            <button
+              className={`model-tab-btn ${selectedModel === "hist_gradient_boosting" ? "active" : ""}`}
+              onClick={() => setSelectedModel("hist_gradient_boosting")}
+            >
+              4. HistGradientBoosting (49.32%)
+            </button>
+          </div>
+
+          {/* 4 Strip Metrics for Selected Model */}
           <div className="ml-metrics-strip">
             <div className="ml-stat-card">
-              <div className="label">Evaluation Window</div>
-              <div className="val">462 Days</div>
-              <div className="sub">11 Out-of-Sample Folds</div>
+              <div className="label">Evaluated Architecture</div>
+              <div className="val" style={{ fontSize: 16 }}>{activeModelStats.name}</div>
+              <div className="sub">7 Rolling Walk-Forward Folds</div>
             </div>
             <div className="ml-stat-card">
-              <div className="label">Model Accuracy</div>
-              <div className="val">61.04%</div>
-              <div className="sub">Rolling Walk-Forward Test</div>
+              <div className="label">Out-of-Sample Accuracy</div>
+              <div className="val">{activeModelStats.accuracy_pct}%</div>
+              <div className="sub">Precision: {activeModelStats.precision_pct}% • Recall: {activeModelStats.recall_pct}%</div>
             </div>
             <div className="ml-stat-card">
-              <div className="label">Naive Baseline</div>
-              <div className="val">61.04%</div>
-              <div className="sub">Majority Direction Rate</div>
+              <div className="label">Brier Score (Loss)</div>
+              <div className="val">{activeModelStats.brier_score}</div>
+              <div className="sub">Worst Fold: {activeModelStats.worst_fold_accuracy_pct}%</div>
             </div>
             <div className="ml-stat-card">
-              <div className="label">Empirical Edge</div>
-              <div className="val" style={{ color: "var(--ruby)" }}>0.00%</div>
-              <div className="sub">Fold 10 Drawdown: 30.95%</div>
+              <div className="label">Empirical Edge vs Baseline</div>
+              <div className="val" style={{ color: "var(--ruby)" }}>
+                {Math.round((activeModelStats.accuracy_pct - 59.86) * 100) / 100}%
+              </div>
+              <div className="sub">Status: {activeModelStats.status}</div>
             </div>
           </div>
 
-          {/* Cross Asset Correlation EDA */}
-          <div style={{ marginTop: 20 }}>
+          {/* Econometric Stationarity & ADF Tests Table */}
+          <div style={{ marginTop: 24 }}>
+            <h4 style={{ fontFamily: "var(--font-heading)", fontSize: 15, marginBottom: 8, color: "var(--gold-light)" }}>
+              Econometric Stationarity Diagnostics (Augmented Dickey-Fuller Tests):
+            </h4>
+            <div className="data-table-wrapper">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Time Series Feature</th>
+                    <th>ADF t-Statistic</th>
+                    <th>p-Value Range</th>
+                    <th>Stationarity Verdict</th>
+                    <th>Econometric Implication</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {historyData?.eda?.stationarity_tests?.map((st, i) => (
+                    <tr key={i}>
+                      <td style={{ fontWeight: 600 }}>{st.series}</td>
+                      <td style={{ fontFamily: "var(--font-mono)" }}>{st.t_stat}</td>
+                      <td>{st.p_value_desc}</td>
+                      <td>
+                        <span className={`status-badge ${st.is_stationary ? "pass" : "fail"}`}>
+                          {st.is_stationary ? "Stationary (I(0))" : "Non-Stationary (I(1))"}
+                        </span>
+                      </td>
+                      <td style={{ color: "var(--text-muted)" }}>{st.verdict}</td>
+                    </tr>
+                  )) || (
+                    <>
+                      <tr>
+                        <td>Raw Gold Landed Price (INR)</td>
+                        <td>-1.157</td>
+                        <td>&gt; 0.10</td>
+                        <td><span className="status-badge fail">Non-Stationary</span></td>
+                        <td>Unit root present; direct price forecasting produces spurious regressions.</td>
+                      </tr>
+                      <tr>
+                        <td>Daily Log Returns</td>
+                        <td>-25.696</td>
+                        <td>&lt; 0.001</td>
+                        <td><span className="status-badge pass">Stationary</span></td>
+                        <td>Mean-reverting; essential transformation for ML features.</td>
+                      </tr>
+                    </>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Top Predictive Correlation Drivers */}
+          <div style={{ marginTop: 24 }}>
             <h4 style={{ fontFamily: "var(--font-heading)", fontSize: 15, marginBottom: 10, color: "var(--gold-light)" }}>
-              Cross-Asset Exploratory Data Analysis (EDA) Insights:
+              Cross-Asset Exploratory Data Analysis (EDA) Insights &amp; 5-Day Target Correlations:
             </h4>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14 }}>
               {historyData?.eda.insights.map((ins, i) => (
@@ -631,6 +870,176 @@ export default function AurumDashboard() {
                   💡 {ins}
                 </div>
               ))}
+              <div style={{ padding: 12, background: "rgba(8,10,15,0.4)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", fontSize: 13, color: "var(--text-muted)" }}>
+                📊 <strong>Fat-Tailed Risk:</strong> Return distribution exhibits kurtosis of 6.29, proving gold returns have heavy tails with violent discontinuous shocks.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Live Target Alert Console & Trigger Simulator (span 6) */}
+        <div className="card alert-config-card" id="alerts">
+          <div className="card-header">
+            <div className="card-title-group">
+              <h3>Live Alert Console &amp; Trigger Generator</h3>
+              <p>Configure Deterministic Target Price Alerts (Spec §6)</p>
+            </div>
+            <span className="brand-badge" style={{ background: "rgba(16, 185, 129, 0.15)", color: "var(--emerald)", borderColor: "rgba(16, 185, 129, 0.3)" }}>
+              Supabase Wire
+            </span>
+          </div>
+
+          <form onSubmit={handleCreateAlert} style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 6 }}>
+            <div className="calc-field">
+              <label>Select Metal For Price Watch</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  type="button"
+                  className={`chart-btn ${alertMetal === "gold_24k" ? "active" : ""}`}
+                  style={{ flex: 1 }}
+                  onClick={() => {
+                    setAlertMetal("gold_24k");
+                    setAlertTargetPrice(155000);
+                  }}
+                >
+                  24K Gold
+                </button>
+                <button
+                  type="button"
+                  className={`chart-btn ${alertMetal === "gold_22k" ? "active" : ""}`}
+                  style={{ flex: 1 }}
+                  onClick={() => {
+                    setAlertMetal("gold_22k");
+                    setAlertTargetPrice(142000);
+                  }}
+                >
+                  22K Gold
+                </button>
+                <button
+                  type="button"
+                  className={`chart-btn ${alertMetal === "silver" ? "active" : ""}`}
+                  style={{ flex: 1 }}
+                  onClick={() => {
+                    setAlertMetal("silver");
+                    setAlertTargetPrice(2300);
+                  }}
+                >
+                  Silver
+                </button>
+              </div>
+            </div>
+
+            <div className="calc-field">
+              <label htmlFor="alert-target-input">Target Price in INR (Per 10 Grams)</label>
+              <div className="calc-input-wrapper">
+                <span className="calc-prefix">₹</span>
+                <input
+                  id="alert-target-input"
+                  type="number"
+                  step="100"
+                  className="calc-input"
+                  value={alertTargetPrice}
+                  onChange={(e) => setAlertTargetPrice(Number(e.target.value))}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="calc-field">
+              <label htmlFor="alert-chat-input">Telegram Chat ID (or Web Client Identifier)</label>
+              <input
+                id="alert-chat-input"
+                type="text"
+                className="chat-input-field"
+                value={alertChatId}
+                onChange={(e) => setAlertChatId(e.target.value)}
+                placeholder="e.g. 87654321"
+                required
+              />
+            </div>
+
+            <button type="submit" className="chat-send-btn" style={{ padding: "12px", width: "100%" }} disabled={alertLoading}>
+              {alertLoading ? "Registering Alert in Supabase..." : "Register / Test Price Alert Trigger"}
+            </button>
+          </form>
+
+          {alertResponse && (
+            <div style={{ marginTop: 14, padding: 14, background: alertResponse.ok ? "rgba(16, 185, 129, 0.1)" : "rgba(239, 68, 68, 0.1)", border: `1px solid ${alertResponse.ok ? "var(--emerald)" : "var(--ruby)"}`, borderRadius: "var(--radius-md)" }}>
+              <div style={{ fontWeight: 700, color: alertResponse.ok ? "var(--emerald)" : "var(--ruby)", marginBottom: 4 }}>
+                {alertResponse.ok ? "✓ Alert Registered Successfully" : "✗ Registration Error"}
+              </div>
+              <p style={{ fontSize: 13, color: "var(--text-main)" }}>{alertResponse.message || alertResponse.error}</p>
+              {alertResponse.alert_config && (
+                <div style={{ marginTop: 8, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5 }}>
+                  <div>Metal: <strong>{alertResponse.alert_config.metal}</strong> • Target: <strong>{formatINR(alertResponse.alert_config.target_price_inr)}</strong></div>
+                  <div>Current Market: <strong>{formatINR(alertResponse.alert_config.current_market_price)}</strong> • Status: <strong style={{ color: alertResponse.alert_config.is_triggered_now ? "var(--ruby)" : "var(--emerald)" }}>{alertResponse.alert_config.status}</strong></div>
+                  <div>Cooldown Policy: <em>{alertResponse.alert_config.state_machine}</em></div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Landed Bullion Arbitrage & Customs Breakdown (span 6) */}
+        <div className="card arbitrage-card">
+          <div className="card-header">
+            <div className="card-title-group">
+              <h3>International vs. Domestic Landed Arbitrage</h3>
+              <p>Transparent Statutory Breakdown (Duty 15% + GST 3%)</p>
+            </div>
+            <span className="brand-badge">CBIC Compliant</span>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 4 }}>
+            <p style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.5 }}>
+              International spot gold (COMEX / London LBMA) is quoted in USD per Troy Ounce (31.1035g). To reach the Indian retail counter, three mandatory conversions occur:
+            </p>
+
+            <div className="tax-breakdown-box">
+              <div className="tax-row">
+                <span>1. International COMEX Spot (Per Troy Oz):</span>
+                <span style={{ fontFamily: "var(--font-mono)" }}>$2,980.50</span>
+              </div>
+              <div className="tax-row">
+                <span>2. USD to INR Reference Rate:</span>
+                <span style={{ fontFamily: "var(--font-mono)" }}>₹86.85 / USD</span>
+              </div>
+              <div className="tax-row">
+                <span>3. Pure Unrefined Bullion (Per 10g):</span>
+                <span>₹1,33,122.54</span>
+              </div>
+              <div className="tax-row">
+                <span>4. Indian Customs Import Duty (15%):</span>
+                <span style={{ color: "var(--gold-bright)" }}>+ ₹19,968.38</span>
+              </div>
+              <div className="tax-row">
+                <span>5. Physical Bullion GST (3%):</span>
+                <span style={{ color: "var(--gold-bright)" }}>+ ₹3,993.68</span>
+              </div>
+              <div className="tax-row total">
+                <span>Domestic Landed Retail 24K (Per 10g):</span>
+                <span style={{ color: "var(--gold-light)" }}>₹1,57,084.60</span>
+              </div>
+            </div>
+
+            <div className="audio-preview-box">
+              <div>
+                <h4 style={{ fontSize: 14, color: "var(--gold-light)", marginBottom: 2 }}>
+                  Hindi Voice Companion Briefing
+                </h4>
+                <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                  Edge-TTS <code>hi-IN-SwaraNeural</code> synthesized preview
+                </p>
+              </div>
+              <button
+                type="button"
+                className="audio-play-btn"
+                onClick={handlePlayVoicePreview}
+                title="Listen to Hindi voice briefing"
+                id="btn-play-voice-demo"
+              >
+                {isPlayingAudio ? "⏸" : "▶"}
+              </button>
             </div>
           </div>
         </div>
@@ -640,7 +1049,7 @@ export default function AurumDashboard() {
           <div className="card-header">
             <div className="card-title-group">
               <h3>Web Conversation Sandbox</h3>
-              <p>Test the Hindi Persona & Safety Guardrails</p>
+              <p>Test the Hindi Persona &amp; Safety Guardrails</p>
             </div>
             <span className="brand-badge">Gemini 3.8 Flash</span>
           </div>

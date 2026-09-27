@@ -1,0 +1,21 @@
+# Aurum AI Python Dependencies
+# Core ML, Data Engineering & Financial Ingestion
+yfinance>=0.2.40
+pandas>=2.2.0
+numpy>=1.26.0
+scikit-learn>=1.4.0
+statsmodels>=0.14.0
+
+# Database & Infrastructure
+supabase>=2.11.0
+psycopg2-binary>=2.9.9
+python-dotenv>=1.0.0
+requests>=2.31.0
+
+# Voice Synthesis (RULE-013, RULE-021)
+edge-tts>=6.1.0
+
+# Testing & Invariant Verification
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+pytest-cov>=4.1.0

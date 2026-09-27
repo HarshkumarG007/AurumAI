@@ -79,10 +79,48 @@ export async function GET() {
         { fold: 10, accuracy: 30.95, baseline: 47.62, status: "FAIL (Severe Drawdown)" },
         { fold: 11, accuracy: 61.9, baseline: 61.9, status: "NEUTRAL" },
       ],
+      multi_model_benchmark: {
+        naive_majority: {
+          name: "Naive Majority Class Baseline",
+          accuracy_pct: 59.86,
+          precision_pct: 59.86,
+          recall_pct: 100.0,
+          brier_score: 0.4014,
+          worst_fold_accuracy_pct: 30.95,
+          status: "BENCHMARK_ANCHOR",
+        },
+        regularized_logistic: {
+          name: "ElasticNet / L2 Regularized Logistic",
+          accuracy_pct: 50.34,
+          precision_pct: 63.28,
+          recall_pct: 77.42,
+          brier_score: 0.359,
+          worst_fold_accuracy_pct: 19.05,
+          status: "FAILED_EDGE (-9.52%)",
+        },
+        random_forest: {
+          name: "Random Forest (100 Trees, Depth 6)",
+          accuracy_pct: 47.96,
+          precision_pct: 62.46,
+          recall_pct: 75.52,
+          brier_score: 0.2806,
+          worst_fold_accuracy_pct: 26.19,
+          status: "FAILED_EDGE (-11.90%)",
+        },
+        hist_gradient_boosting: {
+          name: "HistGradientBoosting (LightGBM type)",
+          accuracy_pct: 49.32,
+          precision_pct: 65.26,
+          recall_pct: 66.67,
+          brier_score: 0.3623,
+          worst_fold_accuracy_pct: 21.43,
+          status: "FAILED_EDGE (-10.54%)",
+        },
+      },
     };
 
-    // Cross-Asset Quantitative Correlations (EDA)
-    const correlationMatrix = {
+    // Cross-Asset Quantitative Correlations & Econometric EDA
+    const edaAnalytics = {
       assets: ["Gold (INR)", "Silver (INR)", "USD/INR", "Brent Crude", "US 10Y Yield", "US Dollar Index"],
       matrix: [
         [1.0, 0.84, 0.62, 0.38, -0.42, -0.58],
@@ -96,7 +134,59 @@ export async function GET() {
         "Gold and Silver exhibit strong co-movement (0.84 correlation).",
         "US Dollar Index (DXY) shows strong negative correlation with Gold (-0.58).",
         "USD/INR depreciation historically supports domestic bullion prices (+0.62).",
+        "Crude oil shocks transmit moderate inflationary pressure to domestic metals (+0.38).",
       ],
+      stationarity_tests: [
+        {
+          series: "Raw Gold Landed Price (INR)",
+          t_stat: -1.157,
+          is_stationary: false,
+          p_value_desc: "> 0.10 (Unit Root)",
+          verdict: "Non-Stationary (Random Walk)",
+        },
+        {
+          series: "Daily Log Returns (Gold)",
+          t_stat: -25.696,
+          is_stationary: true,
+          p_value_desc: "< 0.001 (Stationary)",
+          verdict: "Stationary (Mean-Reverting)",
+        },
+        {
+          series: "Gold / Silver Ratio",
+          t_stat: -1.222,
+          is_stationary: false,
+          p_value_desc: "> 0.10 (Unit Root)",
+          verdict: "Non-Stationary (Persistent Trend)",
+        },
+        {
+          series: "RSI-14 Momentum Oscillator",
+          t_stat: -5.302,
+          is_stationary: true,
+          p_value_desc: "< 0.001 (Stationary)",
+          verdict: "Stationary (Bounded Oscillations)",
+        },
+      ],
+      feature_correlations: {
+        top_positive: [
+          { feature: "Gold/Silver Ratio (30d MA)", correlation: 0.1174 },
+          { feature: "Gold/Silver Spot Ratio", correlation: 0.1172 },
+          { feature: "Gold-to-Oil Ratio", correlation: 0.041 },
+          { feature: "15-day Volatility", correlation: 0.0123 },
+        ],
+        top_negative: [
+          { feature: "5-day Trailing Return", correlation: -0.1792 },
+          { feature: "Price to MA7 Ratio", correlation: -0.1663 },
+          { feature: "Silver 10g Landed", correlation: -0.1471 },
+          { feature: "Crude 15-day Return", correlation: -0.1457 },
+        ],
+      },
+      distribution: {
+        annualized_mean_return_pct: 35.34,
+        annualized_volatility_pct: 23.44,
+        skewness: -1.062,
+        kurtosis: 6.293,
+        fat_tails: "High Kurtosis (Fat-Tailed Risk Distribution)",
+      },
     };
 
     return NextResponse.json({
@@ -104,7 +194,7 @@ export async function GET() {
       data: {
         chart_series: historyPoints,
         backtest: mlBacktest,
-        eda: correlationMatrix,
+        eda: edaAnalytics,
       },
     });
   } catch (error: any) {

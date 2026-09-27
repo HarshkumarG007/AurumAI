@@ -1,0 +1,86 @@
+name: ML Pipeline Evaluation & CI/CD Gating Suite
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Runs every Monday at 02:00 UTC
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+jobs:
+  ml-eval-and-tests:
+    name: Quantitative ML Evaluation & Security Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Node Dependencies
+        run: |
+          npm ci || npm install
+
+      - name: Run Data Mining & Feature Matrix Extraction
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          python ml_pipeline/data_engineering/multi_asset_miner.py
+          python ml_pipeline/data_engineering/feature_engineer.py
+
+      - name: Run Econometric EDA & Stationarity Profiling
+        run: |
+          python ml_pipeline/data_engineering/eda_profiler.py
+
+      - name: Execute Multi-Model Walk-Forward ML Benchmark
+        run: |
+          python ml_pipeline/trend_signal/advanced_ml_benchmark.py
+
+      - name: Verify Strict Gating Invariant (RULE-016 & RULE-017)
+        run: |
+          python -c "
+          import json
+          with open('ml_pipeline/data/ml_benchmark_results.json') as f:
+              results = json.load(f)
+          edge = results['gating_verdict']['statistical_edge_pct']
+          gating_result = results['gating_verdict']['gating_result']
+          print(f'Empirical Edge: {edge}%, Gating Result: {gating_result}')
+          assert edge < 3.0, 'Edge unexpectedly exceeded hurdle; require manual institutional audit!'
+          assert 'FAIL' in gating_result, 'Gating invariant must fail when edge < 3.0%'
+          print('RULE-016 Gating Invariant strictly verified: trend_signal_validated remains FALSE.')
+          "
+
+      - name: Run Python Pytest Suite
+        run: |
+          python -m pytest tests/ -v
+
+      - name: Run TypeScript & Threat Model Test Suite
+        env:
+          TELEGRAM_BOT_SECRET_TOKEN: ${{ secrets.TELEGRAM_BOT_SECRET_TOKEN || 'test_secret_token_12345' }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || 'mock_token' }}
+        run: |
+          npx tsx --test tests/test_phase2_webhook.mjs tests/test_phase3_tools.mjs tests/test_phase7_threat_model.mjs
+
+      - name: Verify Next.js Production Build
+        run: |
+          npm run build
