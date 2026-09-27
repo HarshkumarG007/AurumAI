@@ -1,18 +1,34 @@
+# Dependencies & Build artifacts
 node_modules/
 .next/
 out/
 build/
 dist/
+
+# Environment Variables & Secrets (RULE-024)
 .env
-.env.local
-.env.production
+.env*
+*.env
+!.env.example
+
+# Testing & Python caches
 .pytest_cache/
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+
+# Audio & Temporary Media
 *.ogg
 *.mp3
+*.wav
 ml_pipeline/cache.json
+*.tmp
+*.log
+
+# OS & Device metadata
 .DS_Store
 Thumbs.db
+desktop.ini
+Screenshot_*.jpg
+Screenshot_*.png
+
