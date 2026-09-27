@@ -61,39 +61,39 @@ Aurum AI operates across two decoupled lifecycles:
 
 ```mermaid
 flowchart TD
-    subgraph Hourly_Ingestion_Lifecycle["Hourly Ingestion Lifecycle (GitHub Actions)"]
-        GH["GitHub Actions Cron (Hourly)"] -->|Execute| FETCH["ml_pipeline/fetch.py"]
-        FETCH -->|1. Pull Quotes| YF["yfinance: GC=F, SI=F, INR=X"]
-        YF -->|On Outage| CACHE["Local Cache Fallback (RULE-011)"]
-        FETCH -->|2. Compute Domestic INR| CALC["Landed Math: Spot x FX x 1.18"]
-        CALC -->|3. Compute Descriptives| MA["MA7, MA15, MA30"]
-        MA -->|4. Parameterized Insert| DB[("Supabase Postgres (market_data)")]
-        FETCH -->|5. Evaluate Triggers| ALERTS["ml_pipeline/alert_engine.py"]
-        ALERTS -->|Target Hit or MA Dev > 1.5%| TG_ALERT["Telegram Bot API (sendVoice / Text)"]
+    subgraph Hourly_Lifecycle ["Hourly Ingestion Lifecycle - GitHub Actions"]
+        GH["GitHub Actions Hourly Cron"] -->|Execute| FETCH["ml_pipeline/fetch.py"]
+        FETCH -->|Pull Quotes| YF["yfinance: GC=F, SI=F, INR=X"]
+        YF -->|On Outage| CACHE["Local Cache Fallback - RULE-011"]
+        FETCH -->|Compute Domestic INR| CALC["Landed Math: Spot x FX x 1.18"]
+        CALC -->|Compute Moving Averages| MA["MA7, MA15, MA30"]
+        MA -->|Parameterized Insert| DB["Supabase Postgres - market_data"]
+        FETCH -->|Evaluate Triggers| ALERTS["ml_pipeline/alert_engine.py"]
+        ALERTS -->|Target Hit or MA Deviation| TG_ALERT["Telegram Bot API"]
     end
 
-    subgraph User_Conversation_Lifecycle["User Conversation Lifecycle (Next.js App Router)"]
-        USER["Telegram User / Client"] -->|Sends Message /start or Voice| TG["Telegram Servers"]
-        TG -->|POST Webhook + Secret Token| WEBHOOK["app/api/telegram/webhook/route.ts"]
-        WEBHOOK -->|Verify Secret Token (RULE-004)| AUTH{"Token Match?"}
-        AUTH -->|No| REJECT["Silent 200 OK (Drop)"]
-        AUTH -->|Yes| ACK["Instant 200 OK Ack (RULE-005)"]
-        ACK -.->|Async Background Task via after| AGENT_LOOP["agent/gemini_agent.ts"]
+    subgraph User_Lifecycle ["User Conversation Lifecycle - Next.js App Router"]
+        USER["Telegram User"] -->|Sends Message or Voice| TG["Telegram Servers"]
+        TG -->|POST Webhook with Secret Token| WEBHOOK["app/api/telegram/webhook/route.ts"]
+        WEBHOOK -->|Verify Secret Token| AUTH{"Token Valid?"}
+        AUTH -->|No| REJECT["Silent 200 OK Drop - RULE-004"]
+        AUTH -->|Yes| ACK["Instant 200 OK Ack - RULE-005"]
+        ACK -.->|Async Background Worker| AGENT_LOOP["agent/gemini_agent.ts"]
         
-        AGENT_LOOP -->|Per-Chat Rate Limit (RULE-020)| RL{"Under Limit?"}
-        RL -->|Exceeded| THROTTLE["Send Polite Hindi Throttle Message"]
-        RL -->|Allowed| GEMINI["Gemini Flash (System Prompt + Tools)"]
+        AGENT_LOOP -->|Per-Chat Rate Limit| RL{"Within Quota?"}
+        RL -->|Limit Exceeded| THROTTLE["Send Polite Throttle Message"]
+        RL -->|Allowed| GEMINI["Gemini Flash Agent"]
         
         GEMINI -->|Tool Invocation| TOOLS["agent/tools/market_tools.ts"]
-        TOOLS -->|Server-side Chat ID Binding (RULE-009)| DB
-        TOOLS -.->|Tool Output Data| GEMINI
+        TOOLS -->|Server Context Chat ID| DB
+        TOOLS -.->|Tool Output Numbers| GEMINI
         
-        GEMINI -->|Structured Text| FORMATTER["agent/utils/disclaimer.ts"]
-        FORMATTER -->|Inject Mandatory Disclaimer (RULE-012)| TTS["agent/tts/voice_pipeline.ts"]
-        TTS -->|1. Edge-TTS| MP3["Ephemeral MP3 (SwaraNeural)"]
-        MP3 -->|2. FFmpeg libopus (RULE-006)| OGG["Native Voice Note (48kHz Mono OGG)"]
-        OGG -->|3. sendVoice| TG
-        OGG -->|4. Ephemeral Purge (RULE-021)| DEL["Delete Audio Buffer"]
+        GEMINI -->|Structured Response| FORMATTER["agent/utils/disclaimer.ts"]
+        FORMATTER -->|Inject Disclaimer - RULE-012| TTS["agent/tts/voice_pipeline.ts"]
+        TTS -->|1. Edge-TTS| MP3["Temporary MP3 - SwaraNeural"]
+        MP3 -->|2. FFmpeg libopus - RULE-006| OGG["Native Voice Note - 48kHz Mono OGG"]
+        OGG -->|3. sendVoice API| TG
+        OGG -->|4. Ephemeral Purge - RULE-021| DEL["Delete Local Audio Files"]
         TG --> USER
     end
 ```
@@ -150,12 +150,12 @@ Before the bot can speak with authority, it needs an accurate, continually updat
 
 ```mermaid
 flowchart LR
-    YF["Global Tickers<br>GC=F (Gold)<br>SI=F (Silver)<br>INR=X (USD/INR)"] --> FETCH["ml_pipeline/fetch.py"]
-    FETCH -->|Exception / Timeout| CACHE["Local Cache Fallback<br>(cache.json)"]
-    FETCH --> FORMULA["Landed Price Formula<br>(USD/oz → INR/10g + Duty + GST)"]
-    FORMULA --> MA_CALC["Moving Averages Engine<br>ml_pipeline/moving_averages.py<br>(MA7, MA15, MA30)"]
-    MA_CALC --> SQL_INSERT["Parameterized SQL Writer<br>(RULE-010)"]
-    SQL_INSERT --> SUPABASE[("Supabase Postgres<br>market_data table<br>trend_signal_validated=FALSE")]
+    YF["Global Tickers: GC=F, SI=F, INR=X"] --> FETCH["ml_pipeline/fetch.py"]
+    FETCH -->|On Failure| CACHE["Local Cache Fallback: cache.json"]
+    FETCH --> FORMULA["Landed Price Calculator<br/>USD per oz to INR per 10g + Duty + GST"]
+    FORMULA --> MA_CALC["Moving Averages Engine<br/>ml_pipeline/moving_averages.py<br/>MA7, MA15, MA30"]
+    MA_CALC --> SQL_INSERT["Parameterized SQL Writer - RULE-010"]
+    SQL_INSERT --> SUPABASE["Supabase Postgres: market_data<br/>trend_signal_validated = FALSE"]
 ```
 
 ```
@@ -174,20 +174,27 @@ flowchart LR
 ```
 
 #### 3. Engineering Details & Formulas
-- **Domestic Landed Price Formula:**
-  Gold in India is commonly quoted per 10 grams. With 1 troy ounce = $31.1034768$ grams:
-  $$\text{USD per Gram} = \frac{\text{Spot USD}}{31.1034768}$$
-  $$\text{Base INR (10g)} = (\text{USD per Gram} \times 10) \times \text{FX Rate}$$
-  $$\text{Landed Price INR} = \text{Base INR} \times (1 + \text{Duty} + \text{GST})$$
+- **Domestic Landed Price Formula:**  
+  Gold in India is commonly quoted per 10 grams (1 troy ounce = 31.1034768 grams):
+  ```text
+  USD per Gram    = Spot USD / 31.1034768
+  Base INR (10g)  = (USD per Gram * 10) * FX Rate
+  Landed Price    = Base INR * (1 + Import Duty + GST)
+                  = Base INR * (1 + 0.15 + 0.03)
+                  = Base INR * 1.18
+  ```
   - Effective Import Duty: **15%** (10% Basic Customs Duty + 5% AIDC).
   - Physical Bullion GST: **3%**.
-  - Combined Tax Multiplier: **$1.18$**.
+  - Combined Tax Multiplier: **1.18**.
 - **Purity Variations:**
-  - 24K Gold: $100\%$ pure bullion formula as above.
-  - 22K Gold (Jewelry standard): $\text{Price}_{\text{24K}} \times \frac{22}{24} \approx \text{Price}_{\text{24K}} \times 0.9167$.
+  - 24K Gold: 100% pure bullion formula as above.
+  - 22K Gold (Jewelry standard): `Price_24K * (22 / 24) ≈ Price_24K * 0.9167`.
   - Silver: Landed formula applied per 10 grams (and scalable to 1 kg).
 - **Moving Averages Computation:**
-  $$\text{SMA}_W = \frac{1}{W} \sum_{i=0}^{W-1} \text{Price}_{t-i} \quad \text{for } W \in \{7, 15, 30\}$$
+  ```text
+  SMA(Window W) = (Price_t + Price_{t-1} + ... + Price_{t-W+1}) / W
+  Where W in {7, 15, 30} days
+  ```
 
 #### 4. Challenges & Engineering Solutions
 - **Challenge 1: Unofficial Wrapper Fragility (`yfinance`).**
@@ -221,27 +228,23 @@ sequenceDiagram
     actor User as Telegram User
     participant TG as Telegram API
     participant Webhook as Next.js Webhook Route
-    participant Worker as Background Task (after)
+    participant Worker as Background Task Worker
     participant Agent as Gemini AI Agent
 
-    User->>TG: "Aaj sone ka kya bhav hai?"
-    TG->>Webhook: POST /api/telegram/webhook (Header: X-Telegram-Bot-Api-Secret-Token)
+    User->>TG: Send text or voice query
+    TG->>Webhook: POST /api/telegram/webhook with secret header
     
-    rect rgb(240, 240, 240)
-        Note over Webhook: Verification Step (RULE-004)
-        alt Token Missing or Invalid
-            Webhook-->>TG: HTTP 200 OK { ok: true, note: "acknowledged" }
-            Note over Webhook: Silently drop. Do not reveal auth logic.
-        else Token Matches TELEGRAM_SECRET_TOKEN
-            Webhook-->>TG: HTTP 200 OK { ok: true } (RULE-005)
-            Note over Webhook: Acknowledged in < 50ms
-        end
+    Note over Webhook: Verification Step - RULE-004
+    alt Token Missing or Invalid
+        Webhook-->>TG: HTTP 200 OK Silent Drop - RULE-004
+    else Token Valid
+        Webhook-->>TG: HTTP 200 OK Instant Ack - RULE-005
+        Webhook->>Worker: Trigger async generation
     end
 
-    Webhook-)Worker: Spawn background task via after()
-    Worker->>Agent: Run runAurumAgent(userText, chatId)
-    Agent-->>Worker: Return factual Hindi message + tool data
-    Worker->>TG: Send voice note or text
+    Worker->>Agent: Run runAurumAgent
+    Agent-->>Worker: Return factual Hindi message with disclaimer
+    Worker->>TG: Send native OGG Opus voice note
     TG->>User: Play native voice note in chat
 ```
 
@@ -290,20 +293,20 @@ The AI is the voice of the application, but it is not allowed to make up numbers
 
 ```mermaid
 flowchart TD
-    USER_MSG["User Question: '50,000 rupaye mein kitna sona milega?'"] --> AGENT["Gemini Flash Agent<br>(agent/gemini_agent.ts)"]
+    USER_MSG["User Question: 50,000 rupaye mein kitna sona milega?"] --> AGENT["Gemini Flash Agent<br/>agent/gemini_agent.ts"]
     
-    subgraph Tool_Box["Strict Deterministic Tools (agent/tools/market_tools.ts)"]
-        T1["get_market_snapshot(metal)<br>Returns: price, MA7, MA15, MA30"]
-        T2["calculate_affordability(budget_inr, metal)<br>Returns: quantity_grams = budget / price_per_gram"]
-        T3["check_user_target()<br>Identity bound server-side!"]
-        T4["update_user_target(new_target_inr)<br>Identity bound server-side!"]
+    subgraph Deterministic_Tools ["Deterministic Tools - agent/tools/market_tools.ts"]
+        T1["get_market_snapshot<br/>Returns: price, MA7, MA15, MA30"]
+        T2["calculate_affordability<br/>Pure Math: quantity = budget / price_per_gram"]
+        T3["check_user_target<br/>Bound to Server Context Chat ID"]
+        T4["update_user_target<br/>Bound to Server Context Chat ID"]
     end
 
     AGENT -->|1. Chooses Tool| T2
-    T2 -->|2. Pure Math Calculation| NUMS["quantity_grams: 3.472g<br>price_per_gram: ₹14,399.42"]
+    T2 -->|2. Pure Math Calculation| NUMS["quantity_grams: 3.472g<br/>price_per_gram: 14399.42"]
     NUMS -->|3. Tool Response Data| AGENT
-    AGENT -->|4. Compose Warm Hindi Response| MSG["'Namaste! ₹50,000 mein aap lagbhag 3.47 gram sona le sakte hain.'"]
-    MSG --> DISCLAIMER["Mandatory Disclaimer Appended (RULE-012)"]
+    AGENT -->|4. Compose Warm Hindi Response| MSG["Namaste! 50,000 rupaye mein aap lagbhag 3.47 gram sona le sakte hain."]
+    MSG --> DISCLAIMER["Mandatory Disclaimer Appended - RULE-012"]
 ```
 
 ```
@@ -329,8 +332,10 @@ flowchart TD
 - **Tool 1: `get_market_snapshot(metal)`:**
   Queries latest `market_data` row for `gold_24k`, `gold_22k`, or `silver`. Returns `price_inr`, `ma7`, `ma15`, `ma30`, and `trend_signal_validated`.
 - **Tool 2: `calculate_affordability(budget_inr, metal)`:**
-  $$\text{Price per Gram} = \frac{\text{Price INR}}{10.0}$$
-  $$\text{Quantity Grams} = \frac{\text{Budget INR}}{\text{Price per Gram}}$$
+  ```text
+  Price per Gram = Price_INR / 10.0
+  Quantity Grams = Budget_INR / Price per Gram
+  ```
   Evaluated completely in TypeScript code. Zero LLM math (RULE-001).
 - **Tool 3 & 4: `check_user_target()` and `update_user_target(new_target_inr)`:**
   **RULE-009 Invariant:** The function declaration provided to the LLM has **NO `chat_id` argument**. The server dispatcher injects `authenticatedChatId` from the webhook header. The LLM cannot spoof or query other users' data.
@@ -360,13 +365,13 @@ When you listen to a voice message on WhatsApp or Telegram, it shows a speech bu
 
 ```mermaid
 flowchart LR
-    TEXT["Agent Response Text<br>(Hindi / Hinglish)"] --> TTS["Edge-TTS<br>hi-IN-SwaraNeural"]
-    TTS -->|Generate Raw Audio| MP3["Temporary MP3 File<br>(Ephemeral Disk)"]
-    MP3 --> FFMPEG["FFmpeg Transcoder<br>-c:a libopus -b:a 24k<br>-ar 48000 -ac 1"]
-    FFMPEG -->|Convert Container| OGG["Native Voice Note<br>(OGG Opus Container)"]
-    OGG --> TG_API["Telegram sendVoice API<br>(multipart/form-data)"]
-    TG_API --> CLEANUP["Ephemeral Purge (RULE-021)<br>Unlink MP3 & OGG Immediately"]
-    CLEANUP --> USER["Native Playable Voice Bubble<br>(Waveform + 1.5x/2x Speed)"]
+    TEXT["Agent Response Text<br/>Hindi or Hinglish Copy"] --> TTS["Edge-TTS Engine<br/>hi-IN-SwaraNeural"]
+    TTS -->|Generate Raw Audio| MP3["Temporary MP3 File<br/>Ephemeral Disk Storage"]
+    MP3 --> FFMPEG["FFmpeg Libopus Transcoder<br/>48kHz, Mono, 24kbps"]
+    FFMPEG -->|Convert Container| OGG["Native Voice Note<br/>OGG Opus Container"]
+    OGG --> TG_API["Telegram sendVoice API<br/>multipart form data"]
+    TG_API --> CLEANUP["Ephemeral Purge - RULE-021<br/>Unlink MP3 and OGG Files"]
+    CLEANUP --> USER["Native Playable Voice Bubble<br/>Waveform and Speed Control"]
 ```
 
 ```
@@ -435,20 +440,20 @@ flowchart TD
     START["Hourly Ingestion Job Runs"] --> FETCH["Fetch Latest Market Records"]
     FETCH --> USER_LOOP["For Each User in Database"]
     
-    subgraph Rule1["Rule 1: Target Hit Evaluation"]
-        USER_LOOP --> T_CHECK{"Current Price <= User Target?"}
+    subgraph Target_Hit_Rule ["Rule 1: Target Hit Evaluation"]
+        USER_LOOP --> T_CHECK{"Price at or below Target?"}
         T_CHECK -->|No| T_NONE["Do Nothing"]
-        T_CHECK -->|Yes| T_HIST{"Fired in Last 48h for this Crossing?"}
-        T_HIST -->|Yes| T_SUPPRESS["SUPPRESS Alert (Prevent Spam)"]
-        T_HIST -->|No| T_FIRE["FIRE Target Hit Alert!<br>Record in alert_history"]
+        T_CHECK -->|Yes| T_HIST{"Fired in Last 48 Hours?"}
+        T_HIST -->|Yes| T_SUPPRESS["Suppress Alert - Prevent Spam"]
+        T_HIST -->|No| T_FIRE["Fire Target Hit Alert<br/>Record in alert_history"]
     end
 
-    subgraph Rule2["Rule 2: MA Deviation Evaluation"]
-        USER_LOOP --> MA_CHECK{"Current Price < 15-day MA by > 1.5%?"}
+    subgraph MA_Deviation_Rule ["Rule 2: Moving Average Deviation"]
+        USER_LOOP --> MA_CHECK{"Price 1.5 Percent Below MA15?"}
         MA_CHECK -->|No| MA_NONE["Do Nothing"]
-        MA_CHECK -->|Yes| MA_HIST{"Fired MA Alert in Last 48h?"}
-        MA_HIST -->|Yes| MA_SUPPRESS["SUPPRESS Alert (Cooldown Active)"]
-        MA_HIST -->|No| MA_FIRE["FIRE MA Deviation Alert!<br>Record in alert_history"]
+        MA_CHECK -->|Yes| MA_HIST{"Fired in Last 48 Hours?"}
+        MA_HIST -->|Yes| MA_SUPPRESS["Suppress Alert - Cooldown Active"]
+        MA_HIST -->|No| MA_FIRE["Fire MA Deviation Alert<br/>Record in alert_history"]
     end
 ```
 
@@ -464,11 +469,15 @@ flowchart TD
 
 #### 3. Engineering Details & Rules
 - **Rule 1: Target Hit:**
-  $$\text{Condition: } \text{Price}_{\text{current}} \le \text{Target}_{\text{user}}$$
+  ```text
+  Condition: Current_Price <= User_Target
+  ```
   - *Suppression:* Once per target crossing. Suppressed if triggered within 48 hours for the same target state.
 - **Rule 2: Moving Average Deviation:**
-  $$\text{Deviation \%} = \frac{\text{Price}_{\text{current}} - \text{MA15}}{\text{MA15}} \times 100$$
-  $$\text{Condition: } \text{Deviation \%} < -1.5\%$$
+  ```text
+  Deviation % = ((Current_Price - MA15) / MA15) * 100
+  Condition:   Deviation % < -1.5%
+  ```
   - *Suppression:* Strict 48-hour cooldown per user per metal.
 - **Execution Architecture:**
   Integrated directly inside the hourly GitHub Actions fetch job via [`ml_pipeline/alert_engine.py`](./ml_pipeline/alert_engine.py) and secured API route [`app/api/cron/process-alerts/route.ts`](./app/api/cron/process-alerts/route.ts).
@@ -490,23 +499,23 @@ Many AI projects claim they can "predict the future of the market." In reality, 
 
 ```mermaid
 flowchart TD
-    DATA["3 Years Historical Gold Closes (GC=F)"] --> SPLIT["Walk-Forward Time Splits (No Lookahead Bias)"]
+    DATA["3 Years Historical Gold Data - GC=F"] --> SPLIT["Walk-Forward Time Splits - No Lookahead Bias"]
     
-    subgraph Fold_Simulation["Rolling Fold Evaluation (11 Folds Across 462 Days)"]
-        F1["Fold 1: Train 252 Days → Test Next 42 Days"]
-        F2["Fold 2: Train 252 Days → Test Next 42 Days"]
-        F10["Fold 10: Performance Collapses to 30.95%"]
-        F11["Fold 11: Train 252 Days → Test Next 42 Days"]
+    subgraph Fold_Simulation ["Rolling Fold Evaluation - 11 Folds Across 462 Days"]
+        F1["Fold 1: Train 252 Days - Test 42 Days"]
+        F2["Fold 2: Train 252 Days - Test 42 Days"]
+        F10["Fold 10: Performance Drops to 30.95 Percent"]
+        F11["Fold 11: Train 252 Days - Test 42 Days"]
     end
     
     SPLIT --> Fold_Simulation
-    Fold_Simulation --> METRICS["Calculate Out-of-Sample Accuracy"]
+    Fold_Simulation --> METRICS["Compute Out-of-Sample Metrics"]
     
-    METRICS --> GATE{"Accuracy > Baseline + 3%?<br>(Statistically Distinguishable from Chance?)"}
-    GATE -->|Yes| PASS["Set trend_signal_validated = TRUE (Ship Feature)"]
-    GATE -->|No| FAIL["NEGATIVE RESULT DETECTED!<br>Overall Accuracy: 61.04%<br>Majority Baseline: 61.04%<br>Edge: 0.00%"]
+    METRICS --> GATE{"Statistical Edge Over Baseline?"}
+    GATE -->|Yes| PASS["Set trend_signal_validated = TRUE"]
+    GATE -->|No| FAIL["Negative Result Detected<br/>Model Accuracy: 61.04 Percent<br/>Majority Baseline: 61.04 Percent<br/>Edge: 0.00 Percent"]
     
-    FAIL --> ACTION["ENFORCE RULE-016 & RULE-017:<br>1. Feature does NOT ship<br>2. trend_signal_validated strictly FALSE<br>3. Deliverable is honest negative finding"]
+    FAIL --> ACTION["Enforce RULE-016 and RULE-017<br/>1. Feature Does NOT Ship<br/>2. trend_signal_validated Strictly FALSE<br/>3. Deliverable is Honest Negative Finding"]
 ```
 
 ```
