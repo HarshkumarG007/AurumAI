@@ -104,7 +104,10 @@ async function executeDailyDigest(req: NextRequest) {
     });
   } catch (err: any) {
     console.error("Error executing daily digest:", err);
-    return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: "Internal server error during daily digest execution." },
+      { status: 500 }
+    );
   }
 }
 

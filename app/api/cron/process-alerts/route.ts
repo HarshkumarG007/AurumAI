@@ -132,6 +132,9 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     console.error("Error processing alerts:", err);
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: "Internal server error during alert processing." },
+      { status: 500 }
+    );
   }
 }
