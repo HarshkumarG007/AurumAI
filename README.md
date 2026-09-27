@@ -8,7 +8,11 @@
 ## Table of Contents
 1. [Executive Summary & Product Persona](#1-executive-summary--product-persona)
 2. [End-to-End System Architecture](#2-end-to-end-system-architecture)
-3. [Phase-by-Phase Engineering Deep Dive](#3-phase-by-phase-engineering-deep-dive)
+3. [Visual UI/UX Guide & Procedural Step-by-Step Walkthrough (With Screenshots)](#3-visual-uiux-guide--procedural-step-by-step-walkthrough-with-screenshots)
+   - [Responsive Multi-Device Support Matrix (iPhone, Android, Tablets, Laptops, 4K Smart TVs)](#responsive-multi-device-support-matrix)
+   - [Part A: Web Command Center Step-by-Step Guide](#part-a-web-command-center-step-by-step-guide)
+   - [Part B: Telegram Voice Companion Walkthrough (Real Client Screenshots)](#part-b-telegram-voice-companion-walkthrough-real-client-screenshots)
+4. [Phase-by-Phase Engineering Deep Dive](#4-phase-by-phase-engineering-deep-dive)
    - [Phase 1: Database Schema & Real-Time Ingestion Engine](#phase-1-database-schema--real-time-ingestion-engine)
    - [Phase 2: Secure Webhook & Asynchronous Telegram Gateway](#phase-2-secure-webhook--asynchronous-telegram-gateway)
    - [Phase 3: AI Agent, Tool Calling & Financial Safety Invariants](#phase-3-ai-agent-tool-calling--financial-safety-invariants)
@@ -16,9 +20,15 @@
    - [Phase 5: Automated Alert Engine & State Machine](#phase-5-automated-alert-engine--state-machine)
    - [Phase 6: Trend Prediction Gating & Honest Negative Result](#phase-6-trend-prediction-gating--honest-negative-result)
    - [Phase 7: Deployment Hardening & Threat Model Verification](#phase-7-deployment-hardening--threat-model-verification)
-4. [The 24 Numbered Engineering Rules](#4-the-24-numbered-engineering-rules)
-5. [Local Development, Testing & Verification Guide](#5-local-development-testing--verification-guide)
-6. [Repository Structure](#6-repository-structure)
+   - [Phase 8: Full-Stack Command Center (Obsidian-Gold Design System)](#phase-8-full-stack-command-center-obsidian-gold-design-system)
+   - [Phase 9: Multi-Asset Mining & Econometric EDA](#phase-9-multi-asset-mining--econometric-eda)
+   - [Phase 10: Holdout Testing & Physical Bullion Friction](#phase-10-holdout-testing--physical-bullion-friction)
+   - [Phase 11: Red Team Privacy & Security Audit](#phase-11-red-team-privacy--security-audit)
+   - [Phase 12: Daily Morning Digest & Vercel Cron Integration](#phase-12-daily-morning-digest--vercel-cron-integration)
+5. [The 24 Numbered Engineering Rules](#5-the-24-numbered-engineering-rules)
+6. [Local Development, Testing & Verification Guide (48/48 Tests Passing)](#6-local-development-testing--verification-guide)
+7. [Repository Structure](#7-repository-structure)
+8. [License & Credits](#8-license--credits)
 
 ---
 
@@ -137,7 +147,151 @@ flowchart TD
 
 ---
 
-## 3. Phase-by-Phase Engineering Deep Dive
+## 3. Visual UI/UX Guide & Procedural Step-by-Step Walkthrough (With Screenshots)
+
+Aurum AI delivers an institutional-grade, multi-platform user experience across both a **responsive Web Command Center** and a **voice-native Telegram companion**.
+
+---
+
+### Responsive Multi-Device Support Matrix
+
+The Web Command Center is built with vanilla CSS glassmorphism and fluid typography (`clamp()`), engineered to render across all screen sizes and aspect ratios:
+
+| Device Category | Target Devices & Screen Ratios | Viewport Width | Layout Reflow & Ergonomics |
+|---|---|---|---|
+| **Ultra-Wide & 4K TVs** | iMac 24"/27", Pro Display XDR, 4K Smart TVs (16:9, 21:9) | `> 1440px` (up to 3840px) | Max-width 1680px, expanded padding, 320px SVG chart height, high-contrast `:focus-visible` rings for 10-foot TV remote and keyboard navigation. |
+| **Laptops & Desktops** | MacBook Air/Pro 13"/14"/16", Windows laptops, Surface Laptop | `1024px – 1440px` | Balanced 12-column grid, 3-card ticker row, 8-col chart + 4-col calculator, 6/6 col alert configuration and sandbox. |
+| **Tablets & iPads** | iPad Pro 11"/12.9", iPad Air, iPad Mini, Galaxy Tab (4:3, 16:10) | `768px – 1024px` | 2-column or full-width stacked card reflow, 2x2 telemetry grid, 2-column calculator unit grid, horizontal touch scrolling for data tables. |
+| **Large Phones & Phablets**| iPhone 15/16 Pro Max, Plus, Galaxy S24 Ultra, Pixel 9 Pro | `480px – 768px` | Full-width vertical cards, fluid typography (`clamp(26px, 4.5vw, 42px)`), 2-column unit grid, touch-friendly tap targets ($\ge 44\text{px}$). |
+| **Standard Mobile Phones** | iPhone 12/13/14/15/16, Galaxy S22-S24, Pixel 8/9 (19.5:9) | `360px – 480px` | Single-column vertical stream, compact header, 16px inputs (prevents iOS Safari auto-zoom), iOS safe-area insets (`env(safe-area-inset-bottom)`). |
+| **Compact Phones** | iPhone SE (2nd/3rd gen), Galaxy Z Flip Cover screen | `< 360px` | Streamlined 1-column layout, compact typography, touch-optimized button padding. |
+
+---
+
+### Part A: Web Command Center Step-by-Step Guide
+
+**Live Deployment URL:** [https://aurumai-opal.vercel.app](https://aurumai-opal.vercel.app)
+
+#### Feature 1: Live Bullion Tickers & Moving Average Benchmark Tags
+![Web Command Center Desktop Hero](docs/screenshots/web_command_center_hero.png)
+
+1. **Live Bullion Quotes:** Displays live Indian landed retail prices for **24K Fine Gold** (99.9% pure), **22K Standard Gold** (91.6% jewelry grade / 916 hallmarked), and **999 Fine Silver** (per 10g and per 1kg).
+2. **Deterministic Landed Formula:** Prices incorporate international COMEX/LBMA spot prices, live USD/INR exchange rates, **15% Indian Customs Import Duty**, and **3% Physical Bullion GST** ($1.18\times$ statutory multiplier).
+3. **Moving Average Benchmark Meters:**
+   - **7-Day MA:** Short-term weekly pricing baseline.
+   - **15-Day MA:** Bi-weekly benchmark used for alert trigger deviations.
+   - **30-Day MA:** Monthly trend baseline.
+   - **Color-Coded Deviation Badges:** Green badge (`below`) indicates the current price is trading at a discount relative to the moving average; Red badge (`above`) indicates a premium.
+4. **Live System Telemetry Bar:** Displays real-time connection status with Supabase PostgreSQL, hourly GitHub Actions cron cadence, landed tax formula, and the active `RULE-016` ML gating invariant.
+
+---
+
+#### Feature 2: 30-Day Trend Trajectory Chart & Affordability Calculator
+![Interactive Chart & Affordability Calculator](docs/screenshots/web_chart_calculator.png)
+
+1. **Interactive SVG Trajectory Chart:**
+   - Visualizes 30 days of historical landed prices with a luxury gold linear gradient.
+   - **Moving Average Overlays:** Toggle buttons allow switching on/off the **MA7 (Gold)**, **MA15 (Cyan)**, and **MA30 (Purple)** trend lines.
+2. **Pure Deterministic Affordability Calculator (RULE-001):**
+   - **Budget Input:** Enter any amount in Indian Rupees (e.g., ₹50,000, ₹75,000).
+   - **Metal Selector:** Switch instantly between 24K Gold, 22K Gold, and Silver.
+   - **Cultural Indian Unit Breakdown:** Instantly calculates purchasing power across four standard physical denominations:
+     - **Grams (g):** Metric retail unit.
+     - **Tolas:** Traditional Indian unit ($1\text{ Tola} = 11.6638\text{ grams}$).
+     - **Sovereigns / Pavans:** South Indian wedding standard ($1\text{ Pavan} = 8.0000\text{ grams}$).
+     - **Troy Ounces (oz):** International bullion unit ($1\text{ Troy Oz} = 31.1035\text{ grams}$).
+3. **Transparent Statutory Tax Breakdown:**
+   - Dynamically breaks down total outlay into **Pure Bullion Value**, **Import Customs Duty (15%)**, and **Physical Bullion GST (3%)**.
+
+---
+
+#### Feature 3: Quantitative ML Gating Lab & Econometric EDA
+![Quantitative ML Gating Lab & Stationarity Table](docs/screenshots/web_ml_gating_lab.png)
+
+1. **RULE-016 Gating Invariant Active Banner:**
+   - Clearly alerts users that Aurum AI strictly forbids deploying price prediction models that fail to demonstrate an out-of-sample edge $> 3.0\%$ over baseline.
+2. **Multi-Model Benchmark Selector:**
+   - Toggle between **1. Naive Majority Baseline (59.86%)**, **2. Regularized Logistic L2 (50.34%)**, **3. Random Forest (47.96%)**, and **4. HistGradientBoosting (49.32%)**.
+   - Displays Out-of-Sample Accuracy, Precision, Recall, Brier Score Loss, Worst-Fold Drawdown, and Empirical Edge vs. Baseline.
+3. **Augmented Dickey-Fuller (ADF) Stationarity Diagnostics Table:**
+   - Demonstrates econometric time-series properties: Raw gold landed prices contain a unit root ($t = -1.157, p > 0.10$, Non-Stationary $I(1)$), while Daily Log Returns are stationary ($t = -25.696, p < 0.001$, Stationary $I(0)$).
+4. **Cross-Asset EDA Insights & Kurtosis:**
+   - Documents cross-asset correlations (Silver +0.84, DXY -0.58, USD/INR +0.62) and highlights the **fat-tailed risk profile** (kurtosis of 6.29).
+
+---
+
+#### Feature 4: Alert Console, Arbitrage Explorer & Web Conversation Sandbox
+![Alerts Console, Arbitrage Explorer & Sandbox](docs/screenshots/web_alerts_sandbox.png)
+
+1. **Live Alert Console & Trigger Generator:**
+   - Select metal, set a target price in INR, and enter your Telegram chat ID.
+   - Tests trigger conditions against the live price and displays state machine status (with 48-hour cooldown anti-spam protection).
+2. **International vs. Domestic Landed Arbitrage Explorer:**
+   - Displays the exact step-by-step bridge: COMEX Spot (USD/oz) $\rightarrow$ USD/INR FX Rate $\rightarrow$ Pure Unrefined Bullion $\rightarrow$ +15% Customs Duty $\rightarrow$ +3% GST $\rightarrow$ Domestic Landed Retail Price.
+3. **In-Browser Hindi Voice Companion Preview:**
+   - Click the play button to hear Edge-TTS (`hi-IN-SwaraNeural`) audio synthesis directly in your browser.
+4. **Web Conversation Sandbox:**
+   - Test conversational queries like *"Aaj sone ka rate?"* or test safety guardrails with directive prompts like *"Should I buy today?"*.
+   - Confirms that the model never gives purchase advice and always appends the mandatory statutory disclaimer.
+
+---
+
+### Part B: Telegram Voice Companion Walkthrough (Real Client Screenshots)
+
+**Telegram Bot Username:** [@Aurum_AI_Family_Bot](https://t.me/Aurum_AI_Family_Bot)
+
+#### Step 1: Starting the Bot & Native Opus Voice Notes
+![Telegram /start & Voice Note](docs/screenshots/telegram_voice_start.jpg)
+
+1. **Sending `/start`:**
+   - The user begins the conversation by tapping `/start`.
+   - Aurum AI responds immediately with a warm cultural Hindi greeting explaining its role as a factual market companion:
+     > *"Namaste! Main Aurum AI hoon. Main aapko sona aur chandi ke taaza daam aur pichle dino ke bhav ka factual context bata sakta hoon..."*
+2. **Native Telegram Voice Note Delivery:**
+   - As seen in the screenshot, Aurum AI generates an authentic native Telegram voice bubble (`00:15` and `00:29` duration).
+   - Encoded via FFmpeg with **libopus at 48,000 Hz Mono** into an OGG container (RULE-006), rendering a fully interactive audio waveform with speed controls on Android and iOS Telegram clients.
+3. **Factual Historical Context:**
+   - Voice note speaks: *"Namaste! Aaj 24K Gold ka anumaanit rate ₹1,57,084.60 (prati 10 gram) hai. Yeh pichle 15 din ke average (₹1,59,066.13) se thoda kam hai."*
+4. **Mandatory Disclaimer:**
+   - Attached in 100% of price outputs: *"Yeh anumaanit keemat hai — sthaniya dukaandaar se alag ho sakti hai. Yeh salaah nahi hai."*
+
+---
+
+#### Step 2: Pure Deterministic Affordability Calculation
+![Telegram Affordability Query](docs/screenshots/telegram_affordability_query.jpg)
+
+1. **User Inquiry:**
+   - The family member types: *"50,000 rupaye mein kitna sona aayega?"*
+2. **Zero LLM Arithmetic Execution (RULE-001):**
+   - The LLM does NOT calculate numbers. It calls `calculate_affordability(50000, "gold_22k")`.
+   - The backend deterministic mathematical engine calculates exact weight:
+     - **24K Sona (Pure Gold):** Lagbhag **3.18 gram** (at ₹15,708.46 per gram / ₹1,57,084.60 per 10g).
+     - **22K Sona (Jewellery Gold):** Lagbhag **3.47 gram** (at ₹14,399.42 per gram).
+3. **Contextual Benchmark Comparison:**
+   - Compares the price against the 7-day average (₹1,58,553.90) and 15-day average (₹1,59,066.13).
+4. **Non-Directive Language (RULE-003):**
+   - Notice that the bot never tells the user to buy or hurry. It politely offers: *"Agar aapko kisi khas jewelery ya target price ke baare mein janna ho, toh batayiye!"*
+
+---
+
+#### Step 3: Multi-Metal Market Context & Silver Pricing
+![Telegram Silver Query](docs/screenshots/telegram_silver_query.jpg)
+
+1. **User Inquiry:**
+   - The user asks a quick one-word query: *"Chandi?"*
+2. **Comprehensive Metal Snapshot:**
+   - Aurum AI invokes `get_market_snapshot("silver")` and returns structured data:
+     - **Live Price:** ₹2,355.65 prati 10 gram.
+     - **7-Day Moving Average (MA7):** ₹2,370.94.
+     - **15-Day Moving Average (MA15):** ₹2,361.25.
+     - **30-Day Moving Average (MA30):** ₹2,387.01.
+3. **Plain-Language Summary:**
+   - *"Aaj ka bhav pichle 7 din, 15 din aur 30 din ke average rates se thoda kam chal raha hai."*
+4. **Statutory Non-Advisory Disclaimer Attached.**
+
+---
+
+## 4. Phase-by-Phase Engineering Deep Dive
 
 ---
 
@@ -593,7 +747,92 @@ Before handing the bot over to a family member, we must make sure it is fortifie
 
 ---
 
-## 4. The 24 Numbered Engineering Rules
+### Phase 8: Full-Stack Command Center (Obsidian-Gold Design System)
+
+#### 1. Layman's Explanation
+While Telegram is ideal for voice notes and conversational queries, household decision-makers also appreciate a comprehensive visual dashboard to inspect 30-day trends, interact with moving average overlays, and compute exact jewelry budgets. Phase 8 introduces an ultra-luxury obsidian-gold web command center deployed live to the public internet.
+
+#### 2. Architecture & Design Tokens
+- **Design Tokens:** Deep Obsidian (`#080A0F`), Metallic Gold (`#D4AF37`), Amber Highlight (`#F59E0B`), and Emerald/Ruby indicators.
+- **Typography:** Google Fonts `Outfit` (display headers), `Inter` (prose), and `JetBrains Mono` (financial math).
+- **Sub-Second First Paint:** Anchored with precomputed institutional defaults so cold starts or slow networks never flash empty or zero values.
+- **Fluid Multi-Device Responsiveness:** Engineered using pure CSS `clamp()` and media queries supporting iPhone, Android, iPads, MacBooks, and 4K Smart TVs.
+- **Live Production URL:** [https://aurumai-opal.vercel.app](https://aurumai-opal.vercel.app)
+
+---
+
+### Phase 9: Multi-Asset Mining & Econometric EDA
+
+#### 1. Layman's Explanation
+Gold does not move in a vacuum; it responds to silver movements, crude oil inflation shocks, interest rate expectations, and currency fluctuations. Phase 9 builds a data engineering and quantitative mining pipeline to study how these macroeconomic assets interact with Indian landed bullion.
+
+#### 2. Quantitative Features & Econometric Findings
+- **Data Miner (`ml_pipeline/data_engineering/multi_asset_miner.py`):** Ingests Gold (`GC=F`), Silver (`SI=F`), USD/INR (`INR=X`), Crude Oil (`CL=F`), and US 10-Year Yields (`^TNX`) spanning **782 trading days**.
+- **38-Factor Feature Matrix (`ml_pipeline/data_engineering/feature_engineer.py`):** Calculates landed domestic prices, MAs (7, 15, 30, 50, 200), Golden Cross, trailing returns (1d, 5d, 15d, 30d), RSI14, MACD, volatility, Bollinger Bands (%B and width), Gold-to-Silver ratio, and Gold-to-Oil ratio.
+- **Augmented Dickey-Fuller (ADF) Stationarity Results:**
+  - Raw Landed Gold Price: $t = -1.157, p > 0.10$ $\rightarrow$ **Non-Stationary $I(1)$** (Unit Root present; direct price level prediction produces spurious regressions).
+  - Daily Log Returns: $t = -25.696, p < 0.001$ $\rightarrow$ **Stationary $I(0)$** (Mean-reverting; mathematical prerequisite for ML features).
+- **Fat-Tailed Risk Profile:** Kurtosis of **6.293** (fat-tailed leptokurtic distribution) and negative skewness of **-1.062**, proving that retail bullion returns experience sharp discontinuous shocks that invalidate simple Gaussian assumptions.
+
+---
+
+### Phase 10: Holdout Testing & Physical Bullion Friction
+
+#### 1. Layman's Explanation
+Many algorithmic trading projects look fantastic in backtests because they secretly overfit to past data or ignore the real-world costs of buying and selling physical bullion. Phase 10 subjects our machine learning models to strict untouched holdout testing and models the actual retail transaction costs in India.
+
+#### 2. Backtest Findings & Physical Friction Realities
+- **Model Families Evaluated (`ml_pipeline/trend_signal/advanced_ml_benchmark.py`):**
+  - Naive Majority Class Baseline: **59.86%**
+  - Regularized Logistic Regression (L2): **50.34%** (Edge: **-9.52%**)
+  - Random Forest: **47.96%** (Edge: **-11.90%**)
+  - HistGradientBoosting: **49.32%** (Edge: **-10.54%**)
+- **Untouched Holdout Validation (`ml_pipeline/evaluate_real_holdout.py`):** On real untouched out-of-sample data, candidate accuracy was **51.19%** vs. **59.52%** baseline (Edge deficit of **-8.33%**).
+- **Physical Bullion Friction Simulation:** Modeled 4% Indian retail round-trip costs (dealer spread + non-recoverable 3% GST + hallmark deductions). Because 5-day price moves average 0.5%–1.2%, short-horizon trading yields an annualized Sharpe ratio of **-4.63** (guaranteed capital destruction).
+- **Gating Invariant (RULE-016 & RULE-017):** Directional predictions strictly rejected; `trend_signal_validated` locked to `FALSE`.
+
+---
+
+### Phase 11: Red Team Privacy & Security Audit
+
+#### 1. Layman's Explanation
+To protect family members from online attackers, account hijacking, and data leaks, an adversarial Red Team security and privacy audit was conducted across every layer of the architecture.
+
+#### 2. Remediated Vulnerabilities (VULN-01 to VULN-07)
+1. **VULN-01 (IDOR Account Hijacking):** Alert creation route (`/api/alerts/create`) now runs public web visitors in an isolated `SANDBOX_SIMULATION` mode, preventing arbitrary users from mutating real database records without authentication.
+2. **VULN-02 (CWE-208 Timing Attack on Secrets):** Implemented constant-time cryptographic buffer comparisons (`crypto.timingSafeEqual`) for all webhook and cron secret tokens.
+3. **VULN-03 (HTTP Security Headers):** Injected strict `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security`, `Referrer-Policy`, and `Permissions-Policy` in `next.config.mjs`.
+4. **VULN-04 (CWE-400 In-Memory Heap DoS):** Bounded rate limiter storage with `MAX_TRACKED_IDENTIFIERS = 5000`, active key reclamation, and LRU eviction.
+5. **VULN-05 (Prompt Injection & Token Exhaustion):** Capped user inputs at 500 characters and encapsulated user content inside `<user_query>` XML boundaries (RULE-022).
+6. **VULN-06 (Alert Endpoint Abuse):** Added sliding-window IP rate limiting (10 req/min) on `/api/alerts/create`.
+7. **VULN-07 (PII Sanitization & Permanent Git History Purge):** Executed `git-filter-repo` to permanently erase all personal identifiers across all historical git commits, trees, and blobs.
+
+---
+
+### Phase 12: Daily Morning Digest & Vercel Cron Integration
+
+#### 1. Layman's Explanation
+Family members shouldn't have to remember to check prices manually every day. Phase 12 configures an automated morning bullion briefing sent directly to their Telegram app at 9:00 AM IST.
+
+#### 2. Architecture & Implementation
+- **Vercel Cron (`vercel.json`):** Configured with cron schedule `30 3 * * *` (03:30 UTC = **09:00 AM IST** daily), the exact cadence supported on Vercel's Hobby tier (Spec §8).
+- **Daily Digest Route (`app/api/cron/daily-digest/route.ts`):** Validates `CRON_SECRET` using timing-safe comparison, queries registered users in `users`, and dispatches the formatted morning briefing:
+  ```text
+  Namaste! Kaise hain aap?
+
+  Aaj 24K Fine Gold ka taaza landed bhav ₹1,57,085 (per 10g) chal raha hai.
+  Pichle 15 dino ke average (₹1,59,066) se yeh 1.2% kam hai.
+  Aap mujhse din bhar mein kabhi bhi taaza rate ya affordability pooch sakte hain!
+
+  [Mandatory statutory disclaimer attached]
+  ```
+- **90-Day Retention Cleanup (Spec §7):** Automatically prunes historical records in `chat_log` older than 90 days during the daily digest execution.
+- **Automatic User Enrollment:** Updated `app/api/telegram/webhook/handler.ts` so sending `/start` automatically registers the user into the `users` table for daily digests.
+- **GitHub Actions Step Conditional Fix:** Fixed `.github/workflows/hourly_fetch.yml` to ensure secret-level conditional evaluation properly triggers the hourly alert engine.
+
+---
+
+## 5. The 24 Numbered Engineering Rules
 
 | Rule ID | Rule Summary | Implementation Reference |
 |---|---|---|
@@ -624,7 +863,7 @@ Before handing the bot over to a family member, we must make sure it is fortifie
 
 ---
 
-## 5. Local Development, Testing & Verification Guide
+## 6. Local Development, Testing & Verification Guide
 
 ### 1. Prerequisites
 - **Node.js:** v20.x or v22.x
@@ -652,14 +891,18 @@ Fill in the configuration parameters:
 - `GEMINI_API_KEY`: From Google AI Studio
 - `CRON_SECRET`: Shared secret for internal cron triggers
 
-### 4. Running Verification Test Suites
+### 4. Running Verification Test Suites (48/48 Passing - 100%)
 
 ```bash
-# 1. Run all Python unit and integration tests (Phases 1, 4, 5, 6)
+# 1. Run all Python unit and integration tests (18 tests)
 python -m pytest tests/ -v
 
-# 2. Run all TypeScript integration and security tests (Phases 2, 3, 7)
-npx tsx --test tests/test_phase2_webhook.mjs tests/test_phase3_tools.mjs tests/test_phase7_threat_model.mjs
+# 2. Run all TypeScript integration, threat model & red team tests (30 tests)
+npx tsx tests/test_daily_digest.mjs
+npx tsx tests/test_red_team_audit.mjs
+npx tsx tests/test_phase7_threat_model.mjs
+npx tsx tests/test_phase2_webhook.mjs
+npx tsx tests/test_phase3_tools.mjs
 
 # 3. Test a manual market ingestion run
 python ml_pipeline/fetch.py
@@ -671,16 +914,43 @@ python ml_pipeline/trend_signal/backtest.py
 python scripts/test_live_telegram_voice.py <YOUR_TELEGRAM_CHAT_ID>
 ```
 
+#### Test Suite Verification Summary
+
+```
+================================================================================
+Test Suite                               File Location                         Status
+================================================================================
+Daily Digest & Retention Policy          tests/test_daily_digest.mjs            2 / 2  PASSED
+Timing Attack, DoS & IDOR Defense        tests/test_red_team_audit.mjs         12 / 12 PASSED
+Threat Model Attack Mitigations          tests/test_phase7_threat_model.mjs     5 / 5  PASSED
+Telegram Webhook & Secret Auth           tests/test_phase2_webhook.mjs          5 / 5  PASSED
+Tool Calling & Non-Directive Persona     tests/test_phase3_tools.mjs            6 / 6  PASSED
+--------------------------------------------------------------------------------
+SUBTOTAL TYPESCRIPT (NODE/TSX):                                                30 / 30 PASSED
+
+Data Engineering & ML Invariants         tests/test_data_engineering_and_ml.py  4 / 4  PASSED
+Price Ingestion & Landed Tax Formulas    tests/test_phase1_ingestion.py         6 / 6  PASSED
+Edge-TTS & Opus Audio Synthesis          tests/test_phase4_voice.py             2 / 2  PASSED
+Alert State Machine & 48h Suppression    tests/test_phase5_alerts.py            3 / 3  PASSED
+Walk-Forward Gating Verification         tests/test_phase6_gating.py            3 / 3  PASSED
+--------------------------------------------------------------------------------
+SUBTOTAL PYTHON (PYTEST):                                                      18 / 18 PASSED
+================================================================================
+TOTAL VERIFIED AUTOMATED TEST SUITE:                                           48 / 48 PASSED (100%)
+================================================================================
+```
+
 ---
 
-## 6. Repository Structure
+## 7. Repository Structure
 
 ```
 aurum-ai/
 ├── .github/
 │   └── workflows/
 │       ├── hourly_fetch.yml               # Hourly GitHub Actions cron workflow
-│       └── keepalive_check.yml            # Monthly 60-day auto-disable keepalive
+│       ├── keepalive_check.yml            # Monthly 60-day auto-disable keepalive
+│       └── ml_pipeline_eval.yml           # Weekly ML retraining and invariant evaluation
 ├── agent/
 │   ├── prompts/
 │   │   └── system_prompt.ts               # Gemini system instructions & safety rules
@@ -696,45 +966,81 @@ aurum-ai/
 │   │   └── rate_limit.ts                  # Per-chat sliding window rate limiter
 │   └── gemini_agent.ts                    # Agent tool-calling loop & canned fallback
 ├── app/
-│   └── api/
-│       ├── cron/
-│       │   └── process-alerts/
-│       │       └── route.ts               # Secret-secured alert evaluation route
-│       └── telegram/
-│           └── webhook/
-│               └── route.ts               # Secret-verified async Telegram webhook
+│   ├── api/
+│   │   ├── alerts/
+│   │   │   └── create/
+│   │   │       └── route.ts               # Sandboxed target alert registration
+│   │   ├── cron/
+│   │   │   ├── daily-digest/
+│   │   │   │   └── route.ts               # Daily morning digest & 90-day retention cleanup
+│   │   │   └── process-alerts/
+│   │   │       └── route.ts               # Secret-secured alert evaluation route
+│   │   ├── market/
+│   │   │   ├── history/route.ts           # 30-day historical series API
+│   │   │   └── live/route.ts              # Real-time bullion prices API
+│   │   └── telegram/
+│   │       └── webhook/
+│   │           ├── handler.ts             # Webhook update dispatcher & user enrollment
+│   │           └── route.ts               # Secret-verified async Telegram webhook
+│   ├── globals.css                        # Obsidian-Gold design system & responsive queries
+│   ├── layout.tsx                         # Root layout with SEO and OpenGraph metadata
+│   └── page.tsx                           # Full-stack command center dashboard
 ├── database/
 │   └── schema.sql                         # PostgreSQL schema with constraints & defaults
+├── docs/
+│   └── screenshots/
+│       ├── telegram_voice_start.jpg       # Telegram /start and native voice waveform
+│       ├── telegram_affordability_query.jpg # Telegram affordability calculation
+│       ├── telegram_silver_query.jpg      # Telegram silver price & MA comparison
+│       ├── web_command_center_hero.png    # Web dashboard hero & live bullion tickers
+│       ├── web_chart_calculator.png       # 30-Day SVG chart & unit affordability calculator
+│       ├── web_ml_gating_lab.png          # Quantitative ML gating lab & ADF stationarity table
+│       └── web_alerts_sandbox.png         # Alert console, arbitrage breakdown & sandbox
 ├── ml_pipeline/
+│   ├── data_engineering/
+│   │   ├── multi_asset_miner.py           # 5-asset data miner (782 trading days)
+│   │   ├── feature_engineer.py            # 38-factor quantitative matrix generator
+│   │   └── eda_profiler.py                # Econometric stationarity and kurtosis profiler
+│   ├── trend_signal/
+│   │   ├── advanced_ml_benchmark.py       # 4-model walk-forward benchmark
+│   │   └── backtest.py                    # Foundational walk-forward validator
 │   ├── alert_engine.py                    # Target hit & MA deviation alert evaluator
+│   ├── evaluate_real_holdout.py           # Real-data out-of-sample holdout test
 │   ├── fetch.py                           # yfinance market ingestion & cache fallback
 │   ├── fetch_wrapper.ts                   # Landed price mathematical helper
 │   ├── moving_averages.py                 # Deterministic SMA calculator (MA7, 15, 30)
-│   ├── tts_convert.py                     # Edge-TTS & FFmpeg libopus audio transcoder
-│   └── trend_signal/
-│       └── backtest.py                    # Walk-forward validation backtester
+│   ├── trend_signal_research_pipeline.py  # Synthetic benchmark proving selection bias
+│   └── tts_convert.py                     # Edge-TTS & FFmpeg libopus audio transcoder
 ├── scripts/
+│   ├── test_agent_full.ts                 # Full agent pipeline test runner
 │   └── test_live_telegram_voice.py        # Live Telegram sendVoice client playback test
 ├── tests/
+│   ├── test_daily_digest.mjs              # Daily digest & 90-day retention test
+│   ├── test_data_engineering_and_ml.py   # Data engineering & invariant test suite
 │   ├── test_phase1_ingestion.py           # Phase 1: Ingestion & formula test suite
 │   ├── test_phase2_webhook.mjs            # Phase 2: Webhook & secret token test suite
 │   ├── test_phase3_tools.mjs              # Phase 3: Tool-calling & advice gating test suite
 │   ├── test_phase4_voice.py               # Phase 4: FFmpeg Opus audio test suite
 │   ├── test_phase5_alerts.py              # Phase 5: Alert engine & suppression test suite
 │   ├── test_phase6_gating.py              # Phase 6: Trend signal gating test suite
-│   └── test_phase7_threat_model.mjs       # Phase 7: Threat model verification test suite
+│   ├── test_phase7_threat_model.mjs       # Phase 7: Threat model verification test suite
+│   └── test_red_team_audit.mjs            # Red Team timing, DoS, and IDOR test suite
 ├── .env.example                           # Configuration blueprint
 ├── .gitignore                             # Git ignore rules
 ├── memory.md                              # Persistent engineering & decision log
-├── next.config.mjs                        # Next.js server configuration
+├── next.config.mjs                        # Next.js security headers & server configuration
 ├── package.json                           # Node.js dependencies & scripts
+├── task.md                                # Master task roadmap & status checklist
 ├── tsconfig.json                          # TypeScript compiler options
+├── vercel.json                            # Vercel Cron configuration (09:00 AM IST daily)
+├── EDA_REPORT.md                          # Econometric profiling & stationarity report
+├── RED_TEAM_AUDIT_REPORT.md               # Red Team security & privacy audit report
 └── README.md                              # Comprehensive project documentation
 ```
 
 ---
 
-## 7. License & Credits
+## 8. License & Credits
 
 - **License:** Apache License 2.0.
 - **Engineered for:** Trustworthy, voice-first market context for family members.

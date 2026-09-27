@@ -94,11 +94,13 @@ body::after {
   z-index: 0;
 }
 
-/* Main Container */
+/* Main Container with Mobile Safe Area Insets */
 .app-container {
-  max-width: 1400px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 24px 28px 80px;
+  padding: 24px 28px max(80px, env(safe-area-inset-bottom, 80px));
+  padding-left: max(24px, env(safe-area-inset-left, 24px));
+  padding-right: max(24px, env(safe-area-inset-right, 24px));
   position: relative;
   z-index: 1;
 }
@@ -116,6 +118,7 @@ body::after {
   border-radius: var(--radius-lg);
   margin-bottom: 32px;
   box-shadow: var(--shadow-sm);
+  transition: all 0.25s ease;
 }
 
 .brand {
@@ -266,11 +269,12 @@ body::after {
 
 .hero-title {
   font-family: var(--font-heading);
-  font-size: 38px;
+  font-size: clamp(26px, 4.5vw, 42px);
   font-weight: 800;
   letter-spacing: -0.8px;
   color: var(--text-main);
   margin-bottom: 12px;
+  line-height: 1.18;
 }
 
 .hero-title span {
@@ -280,9 +284,10 @@ body::after {
 }
 
 .hero-desc {
-  font-size: 16px;
+  font-size: clamp(14px, 2vw, 16px);
   color: var(--text-muted);
   max-width: 780px;
+  line-height: 1.6;
 }
 
 /* Grid Layout */
@@ -302,7 +307,7 @@ body::after {
   border-radius: var(--radius-lg);
   padding: 24px;
   box-shadow: var(--shadow-sm);
-  transition: border-color 0.25s, box-shadow 0.25s;
+  transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
   position: relative;
   overflow: hidden;
 }
@@ -317,11 +322,12 @@ body::after {
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 20px;
+  gap: 12px;
 }
 
 .card-title-group h3 {
   font-family: var(--font-heading);
-  font-size: 18px;
+  font-size: clamp(17px, 2vw, 20px);
   font-weight: 700;
   color: var(--text-main);
 }
@@ -336,19 +342,14 @@ body::after {
   grid-column: span 4;
 }
 
-@media (max-width: 1024px) {
-  .ticker-card {
-    grid-column: span 12;
-  }
-}
-
 .ticker-price-hero {
   font-family: var(--font-heading);
-  font-size: 34px;
+  font-size: clamp(26px, 3.2vw, 36px);
   font-weight: 800;
   color: var(--text-main);
   letter-spacing: -0.5px;
   margin-bottom: 6px;
+  line-height: 1.15;
 }
 
 .ticker-subtext {
@@ -879,5 +880,341 @@ body::after {
 
 .audio-play-btn:hover {
   transform: scale(1.08);
+}
+
+/* ==========================================================================
+   MULTI-DEVICE RESPONSIVE BREAKPOINTS & ERGONOMICS
+   Supports: iPhone, Android, iPad, Tablets, Laptops, iMac, Windows, 4K Smart TVs
+   ========================================================================== */
+
+/* 1. Ultra-Wide Displays, iMac (24"/27"/32") & 4K Smart TVs (min-width: 1441px) */
+@media (min-width: 1441px) {
+  .app-container {
+    max-width: 1680px;
+    padding: 32px 48px max(90px, env(safe-area-inset-bottom, 90px));
+  }
+
+  .card {
+    padding: 28px;
+  }
+
+  .chart-svg-container {
+    height: 300px;
+  }
+
+  .ml-stat-card .val {
+    font-size: 30px;
+  }
+}
+
+/* 2. Standard Laptops & Landscape Tablets (max-width: 1200px) */
+@media (max-width: 1200px) {
+  .main-chart-card,
+  .calculator-card,
+  .arbitrage-card,
+  .alert-config-card,
+  .sandbox-card,
+  .alerts-console-card {
+    grid-column: span 12;
+  }
+
+  .dashboard-grid {
+    gap: 20px;
+  }
+}
+
+/* 3. Tablets & iPads (Portrait) (max-width: 960px) */
+@media (max-width: 960px) {
+  .ticker-card {
+    grid-column: span 12;
+  }
+
+  .navbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 16px 20px;
+  }
+
+  .brand {
+    justify-content: space-between;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .nav-link {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .nav-btn-tg {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 18px;
+  }
+
+  .telemetry-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 14px 18px;
+  }
+
+  .calc-units-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ml-metrics-strip {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+/* 4. Large Mobile Phones & Phablets (max-width: 768px) */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 16px 16px 70px;
+  }
+
+  .hero-header {
+    margin-bottom: 22px;
+  }
+
+  .chart-svg-container {
+    height: 230px;
+  }
+
+  .chart-controls {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .chart-btn {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .gating-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px;
+  }
+
+  .model-tab-bar {
+    gap: 6px;
+  }
+
+  .model-tab-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .audio-preview-box {
+    flex-direction: column;
+    text-align: center;
+    gap: 14px;
+  }
+
+  .audio-play-btn {
+    margin: 0 auto;
+  }
+}
+
+/* 5. Standard Mobile Phones (iPhone 12-16, Samsung Galaxy, Pixel) (max-width: 540px) */
+@media (max-width: 540px) {
+  .app-container {
+    padding: 12px 12px 60px;
+  }
+
+  .card {
+    padding: 18px 14px;
+    border-radius: var(--radius-md);
+  }
+
+  .navbar {
+    padding: 14px;
+    margin-bottom: 20px;
+    border-radius: var(--radius-md);
+  }
+
+  /* Compact brand on small screens */
+  .brand-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
+    border-radius: 10px;
+  }
+
+  .brand-info h1 {
+    font-size: 17px;
+  }
+
+  .brand-info p {
+    display: none; /* Hide subtitle to preserve vertical viewport on mobile */
+  }
+
+  /* Telemetry bar clean single-column or tight 2-col */
+  .telemetry-bar {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    font-size: 11px;
+  }
+
+  .hero-title {
+    font-size: 26px;
+    letter-spacing: -0.4px;
+  }
+
+  .hero-desc {
+    font-size: 13px;
+  }
+
+  .dashboard-grid {
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  /* Ticker Prices */
+  .ticker-price-hero {
+    font-size: 28px;
+  }
+
+  .ma-meter-row {
+    font-size: 12px;
+  }
+
+  /* Inputs font-size 16px to prevent iOS Safari auto-zoom on focus */
+  .calc-input,
+  .chat-input-field {
+    font-size: 16px !important;
+  }
+
+  .calc-prefix {
+    font-size: 16px;
+  }
+
+  /* Calculator Units 2-column grid */
+  .calc-units-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .unit-box {
+    padding: 10px 8px;
+  }
+
+  .unit-value {
+    font-size: 15px;
+  }
+
+  .unit-box h4 {
+    font-size: 11px;
+  }
+
+  /* Tax breakdown rows */
+  .tax-row {
+    font-size: 12px;
+  }
+
+  .tax-row.total {
+    font-size: 14px;
+  }
+
+  /* ML stats */
+  .ml-metrics-strip {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .ml-stat-card {
+    padding: 12px;
+  }
+
+  .ml-stat-card .val {
+    font-size: 18px;
+  }
+
+  /* Chat Simulator */
+  .chat-simulator-box {
+    height: 260px;
+    padding: 12px;
+  }
+
+  .chat-bubble {
+    max-width: 92%;
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  /* Footer */
+  .app-footer {
+    flex-direction: column;
+    text-align: center;
+    gap: 14px;
+    margin-top: 36px;
+    padding-top: 20px;
+  }
+
+  .footer-disclaimer {
+    font-size: 11px;
+  }
+}
+
+/* 6. Ultra-Compact Mobile (iPhone SE, Small Androids) (max-width: 360px) */
+@media (max-width: 360px) {
+  .ticker-price-hero {
+    font-size: 24px;
+  }
+
+  .calc-units-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ml-metrics-strip {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 7. Touch Device Ergonomics (Mobile Phones, Tablets) */
+@media (pointer: coarse) {
+  .chart-btn,
+  .model-tab-btn,
+  .chat-send-btn,
+  .nav-btn-tg {
+    min-height: 44px;
+  }
+
+  .chart-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .data-table-wrapper {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* 8. Smart TV & Keyboard Accessibility (10-Foot UI) */
+:focus-visible {
+  outline: 2px solid var(--gold-primary);
+  outline-offset: 3px;
+}
+
+/* 9. Reduced Motion Preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
