@@ -1,0 +1,45 @@
+name: Hourly Price Fetch & Alerts
+
+on:
+  schedule:
+    # Runs at the start of every hour (UTC)
+    - cron: '0 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  fetch-and-alert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance supabase psycopg2-binary python-dotenv edge-tts requests
+
+      - name: Run Market Data Fetch Pipeline
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          DUTY_PCT: ${{ secrets.DUTY_PCT || '0.15' }}
+          GST_PCT: ${{ secrets.GST_PCT || '0.03' }}
+        run: |
+          python ml_pipeline/fetch.py
+
+      - name: Trigger Alert Engine (Web API)
+        if: env.APP_URL != '' && env.CRON_SECRET != ''
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl -X POST "${APP_URL}/api/cron/process-alerts" \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "Content-Type: application/json"

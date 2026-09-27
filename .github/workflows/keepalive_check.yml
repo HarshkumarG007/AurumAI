@@ -1,0 +1,19 @@
+name: Actions Inactivity Keepalive & Check
+
+on:
+  schedule:
+    # Runs on the 1st of every month at 06:00 UTC (well within the 60-day limit)
+    - cron: '0 6 1 * *'
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Keepalive Activity Ping
+        run: |
+          echo "Aurum AI Keepalive Check - $(date -u)"
+          echo "Prevents GitHub Actions scheduled workflows from being automatically disabled after 60 days of inactivity."
