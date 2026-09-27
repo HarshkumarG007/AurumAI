@@ -25,6 +25,7 @@
    - [Phase 10: Holdout Testing & Physical Bullion Friction](#phase-10-holdout-testing--physical-bullion-friction)
    - [Phase 11: Red Team Privacy & Security Audit](#phase-11-red-team-privacy--security-audit)
    - [Phase 12: Daily Morning Digest & Vercel Cron Integration](#phase-12-daily-morning-digest--vercel-cron-integration)
+   - [Phase 13: CI/CD Pipeline Resilience & FFmpeg Runner Integration](#phase-13-cicd-pipeline-resilience--ffmpeg-runner-integration)
 5. [The 24 Numbered Engineering Rules](#5-the-24-numbered-engineering-rules)
 6. [Local Development, Testing & Verification Guide (48/48 Tests Passing)](#6-local-development-testing--verification-guide)
 7. [Repository Structure](#7-repository-structure)
@@ -710,7 +711,48 @@ flowchart TD
 #### 1. Layman's Explanation
 Before handing the bot over to a family member, we must make sure it is fortified against bad actors on the internet. Phase 7 tests all potential attack vectors: hackers trying to pretend to be Telegram, malicious users attempting to break our database or spam our servers, and external third-party outages. We confirmed that all defenses hold strong.
 
-#### 2. Threat Model Matrix & Test Results
+#### 2. Threat Model Architecture & Hardening Flowchart
+
+```mermaid
+flowchart TD
+    subgraph Ingress ["Attack Vectors & Ingress Boundaries"]
+        ATTACKER["Malicious Actor / Web Crawler"] -->|Vector 1: Webhook Spoofing| V1["Fake Webhook Requests"]
+        ATTACKER -->|Vector 2: Prompt Injection| V2["Adversarial Text: Ignore rules"]
+        ATTACKER -->|Vector 3: Denial of Wallet| V3["Quota Exhaustion Flooding"]
+        ATTACKER -->|Vector 4: SQL Injection| V4["Malicious SQL Payloads"]
+        UPSTREAM["Yahoo / TTS Outage"] -->|Vector 5: Dependency Outage| V5["Service Disruptions"]
+    end
+
+    subgraph Defense ["Mitigation Hardening Matrix"]
+        V1 -->|Timing-Safe Token Match| D1["CWE-208 Safe Equal - Silent 200 OK"]
+        V2 -->|Server-Context Chat ID| D2["Input as Data in XML - Prompt Hardened"]
+        V3 -->|LRU Sliding Window| D3["15 RPM / 60 RPH - Bounded 5000 Keys"]
+        V4 -->|Parameterized Queries| D4["Strict SQL %s Type Binding"]
+        V5 -->|Fallback Circuit Breakers| D5["cache.json + Canned Text Fallback"]
+    end
+
+    D1 --> OUT["Hardened, Resilient System State"]
+    D2 --> OUT
+    D3 --> OUT
+    D4 --> OUT
+    D5 --> OUT
+```
+
+```
++-----------------------------------------------------------------------------------+
+|                     PHASE 7: MULTI-LAYER THREAT MODEL DEFENSE                     |
++-----------------------------------------------------------------------------------+
+ [External Threat / Ingress]
+         │
+         ├── 1. Webhook Forgery    ──> [Timing-Safe Constant-Time Check] ──> Silent 200 OK
+         ├── 2. Prompt Injection   ──> [Chat ID Server-Bound + XML Esc]  ──> Strict Data Boundary
+         ├── 3. DoS / Wallet Drain ──> [Sliding-Window Rate Limiter]     ──> 15 RPM / 60 RPH
+         ├── 4. SQL Injection      ──> [Parameterized %s Bindings]       ──> Safe DB Execution
+         └── 5. Upstream Outage    ──> [Circuit Breaker Fallbacks]       ──> cache.json & Text
++-----------------------------------------------------------------------------------+
+```
+
+#### 3. Threat Model Matrix & Test Results
 
 ```
 +---------------------------------------------------------------------------------------------------+
@@ -735,13 +777,13 @@ Before handing the bot over to a family member, we must make sure it is fortifie
 +------------------------------------+-------------------------------------------+------------------+
 ```
 
-#### 3. Provider Limits & Free-Tier Audit (RULE-019)
+#### 4. Provider Limits & Free-Tier Audit (RULE-019)
 - **Vercel Hobby Tier:** Cron limited to once daily; Fluid compute max duration is 5 minutes.
 - **Supabase Free Tier:** 500 MB database capacity; hourly cron activity prevents 7-day auto-pause.
 - **GitHub Actions:** 2,000 monthly runner minutes; monthly keepalive prevents 60-day auto-disablement.
 - **Google Gemini API:** Free tier quota bounded by per-user rate limiters.
 
-#### 4. Acceptance Criteria Verification
+#### 5. Acceptance Criteria Verification
 - Full threat-model test suite executed in [`tests/test_phase7_threat_model.mjs`](./tests/test_phase7_threat_model.mjs) (5/5 tests passed).
 - **Deployment Gate:** Codebase pushed to remote repository. Live public deployment paused awaiting explicit human confirmation.
 
@@ -752,12 +794,64 @@ Before handing the bot over to a family member, we must make sure it is fortifie
 #### 1. Layman's Explanation
 While Telegram is ideal for voice notes and conversational queries, household decision-makers also appreciate a comprehensive visual dashboard to inspect 30-day trends, interact with moving average overlays, and compute exact jewelry budgets. Phase 8 introduces an ultra-luxury obsidian-gold web command center deployed live to the public internet.
 
-#### 2. Architecture & Design Tokens
+#### 2. Full-Stack Web Architecture & Responsive Flowchart
+
+```mermaid
+flowchart TD
+    subgraph Clients ["Multi-Device Responsive Viewports"]
+        MOBILES["iPhones & Androids (320px - 480px)"]
+        TABLETS["iPads & Tablets (768px - 1024px)"]
+        DESKTOPS["MacBooks & PCs (1280px - 1920px)"]
+        TVS["4K Smart TVs (2560px - 3840px+)"]
+    end
+
+    Clients -->|Next.js App Router Client Navigation| DASH["app/page.tsx - Luxury Obsidian Dashboard"]
+
+    subgraph Core_Modules ["Modular Glassmorphic Component Architecture"]
+        DASH --> TICKERS["Live Bullion Tickers (24K, 22K & Silver + MA Tags)"]
+        DASH --> CHART["Interactive SVG Chart (Spot Trajectory + MA Overlays)"]
+        DASH --> CALC["Affordability Calculator (Grams, Tolas, Pavans + Tax Matrix)"]
+        DASH --> ARBITRAGE["Arbitrage Explorer (COMEX Spot to Landed Breakdown)"]
+        DASH --> LAB["Quantitative ML Gating Lab (Model Benchmark & Feature Ranks)"]
+        DASH --> CONSOLE["Alert Engine Console (Live Trigger Threshold Simulation)"]
+        DASH --> VOICE_PREVIEW["Voice Note Companion (In-Browser Native WebAudio Preview)"]
+    end
+
+    subgraph Data_Layer ["Sub-Second Anchor & Realtime Sync"]
+        TICKERS & CHART & CALC --> ANCHOR["Institutional Precomputed Cache"]
+        ANCHOR --> SYNC["Supabase Realtime PostgreSQL Revalidation"]
+    end
+```
+
+```
++-----------------------------------------------------------------------------------+
+|               PHASE 8: OBSIDIAN-GOLD FULL-STACK ARCHITECTURE                      |
++-----------------------------------------------------------------------------------+
+ [Client Devices: iPhone | Android | iPad | MacBook | Windows | 4K Smart TV]
+                                   │
+                                   ▼
+ [Next.js App Router: app/page.tsx (Obsidian #080A0F + Gold #D4AF37 Design System)]
+   │
+   ├── [Live Bullion Tickers] ────> 24K, 22K & Silver with MA7/15/30 Deviation Badges
+   ├── [Interactive SVG Chart] ───> 30-Day Landed Trajectory + Moving Average Overlays
+   ├── [Affordability Engine] ────> Pure Deterministic Math (Grams, Tolas, Pavans, Oz)
+   ├── [Arbitrage Explorer] ──────> COMEX Spot (USD/oz) x FX x 1.18 Duty/GST Waterfall
+   ├── [ML Gating Lab] ───────────> Multi-Model Walk-Forward Results & Feature Ranks
+   ├── [Alerts Simulator] ────────> Threshold Testing with Safe Client Sandbox Mode
+   └── [Voice Preview Player] ────> In-Browser Telegram Voice Note Opus Playback
++-----------------------------------------------------------------------------------+
+```
+
+#### 3. Architecture & Design Tokens
 - **Design Tokens:** Deep Obsidian (`#080A0F`), Metallic Gold (`#D4AF37`), Amber Highlight (`#F59E0B`), and Emerald/Ruby indicators.
 - **Typography:** Google Fonts `Outfit` (display headers), `Inter` (prose), and `JetBrains Mono` (financial math).
 - **Sub-Second First Paint:** Anchored with precomputed institutional defaults so cold starts or slow networks never flash empty or zero values.
 - **Fluid Multi-Device Responsiveness:** Engineered using pure CSS `clamp()` and media queries supporting iPhone, Android, iPads, MacBooks, and 4K Smart TVs.
 - **Live Production URL:** [https://aurumai-opal.vercel.app](https://aurumai-opal.vercel.app)
+
+#### 4. Acceptance Criteria Verification
+- Full Next.js production build (`npm run build`) completed with 0 errors across 7 routes.
+- Multi-device layout verified across phone (375x667), tablet (768x1024), laptop (1440x900), and 4K (3840x2160) resolutions with responsive typography and SVG scaling.
 
 ---
 
@@ -766,13 +860,75 @@ While Telegram is ideal for voice notes and conversational queries, household de
 #### 1. Layman's Explanation
 Gold does not move in a vacuum; it responds to silver movements, crude oil inflation shocks, interest rate expectations, and currency fluctuations. Phase 9 builds a data engineering and quantitative mining pipeline to study how these macroeconomic assets interact with Indian landed bullion.
 
-#### 2. Quantitative Features & Econometric Findings
+#### 2. Pipeline Flowchart & Architecture
+
+```mermaid
+flowchart TD
+    subgraph Data_Mining ["Multi-Asset Ingestion Pipeline - 782 Trading Days"]
+        G["Gold Futures (GC=F)"]
+        S["Silver Futures (SI=F)"]
+        F["USD/INR FX (INR=X)"]
+        C["WTI Crude Oil (CL=F)"]
+        B["US 10Y Yields (^TNX)"]
+    end
+
+    Data_Mining --> MINER["ml_pipeline/data_engineering/multi_asset_miner.py"]
+    MINER --> RAW["Clean Synchronized Time Series Matrix (20 Columns)"]
+
+    RAW --> FE["Feature Engineering Engine - feature_engineer.py"]
+    subgraph Features ["38-Factor Quantitative Feature Matrix"]
+        FE --> F_MA["Moving Averages: MA7, MA15, MA30, MA50, MA200"]
+        FE --> F_MOM["Momentum: RSI14, MACD, MACD Signal, MACD Hist"]
+        FE --> F_VOL["Volatility: 15d Vol, 30d Vol, BBands (%B & Width)"]
+        FE --> F_MACRO["Cross-Asset: Gold/Silver Ratio, Gold/Oil Ratio"]
+        FE --> F_TARGETS["Forward Targets: 1d, 5d, 15d Directional Returns"]
+    end
+
+    Features --> EDA["Econometric EDA Profiler - eda_profiler.py"]
+    subgraph Econometrics ["Statistical Verification & Stationarity Proof"]
+        EDA --> ADF1["ADF Test: Raw Gold Level -> t=-1.157, p>0.10 (Non-Stationary I(1))"]
+        EDA --> ADF2["ADF Test: Daily Returns -> t=-25.696, p<0.001 (Stationary I(0))"]
+        EDA --> RISK["Distribution: Kurtosis 6.293 (Fat Tails), Skew -1.062"]
+        EDA --> CORR["Correlation Matrix: Weak Linear Correlation (|r| < 0.18)"]
+    end
+```
+
+```
++-----------------------------------------------------------------------------------+
+|               PHASE 9: MULTI-ASSET DATA MINING & ECONOMETRIC EDA                  |
++-----------------------------------------------------------------------------------+
+ [Raw Asset Quotes: GC=F, SI=F, INR=X, CL=F, ^TNX] (782 Trading Days)
+                            │
+                            ▼
+ [multi_asset_miner.py] ──> Data Alignment, Fwd-Fill, Currency Landed Transformation
+                            │
+                            ▼
+ [feature_engineer.py]  ──> 38 Quantitative Features:
+                            ├── Moving Averages & Crosses (MA7, 15, 30, 50, 200)
+                            ├── Momentum Indicators (RSI14, MACD, MACD Signal)
+                            ├── Volatility Measures (15d/30d Vol, Bollinger Bands)
+                            ├── Macro Ratios (Gold/Silver, Gold/Crude Ratios)
+                            └── Forward Prediction Targets (1d, 5d, 15d Returns)
+                            │
+                            ▼
+ [eda_profiler.py]      ──> Econometric Proofs:
+                            ├── Raw Gold Price:  t = -1.157, p > 0.10 (Non-Stationary)
+                            ├── Daily Returns:   t = -25.696, p < 0.001 (Stationary)
+                            └── Risk Profile:    Kurtosis = 6.293, Skewness = -1.062
++-----------------------------------------------------------------------------------+
+```
+
+#### 3. Quantitative Features & Econometric Findings
 - **Data Miner (`ml_pipeline/data_engineering/multi_asset_miner.py`):** Ingests Gold (`GC=F`), Silver (`SI=F`), USD/INR (`INR=X`), Crude Oil (`CL=F`), and US 10-Year Yields (`^TNX`) spanning **782 trading days**.
 - **38-Factor Feature Matrix (`ml_pipeline/data_engineering/feature_engineer.py`):** Calculates landed domestic prices, MAs (7, 15, 30, 50, 200), Golden Cross, trailing returns (1d, 5d, 15d, 30d), RSI14, MACD, volatility, Bollinger Bands (%B and width), Gold-to-Silver ratio, and Gold-to-Oil ratio.
 - **Augmented Dickey-Fuller (ADF) Stationarity Results:**
   - Raw Landed Gold Price: $t = -1.157, p > 0.10$ $\rightarrow$ **Non-Stationary $I(1)$** (Unit Root present; direct price level prediction produces spurious regressions).
   - Daily Log Returns: $t = -25.696, p < 0.001$ $\rightarrow$ **Stationary $I(0)$** (Mean-reverting; mathematical prerequisite for ML features).
 - **Fat-Tailed Risk Profile:** Kurtosis of **6.293** (fat-tailed leptokurtic distribution) and negative skewness of **-1.062**, proving that retail bullion returns experience sharp discontinuous shocks that invalidate simple Gaussian assumptions.
+
+#### 4. Acceptance Criteria Verification
+- Ran multi-asset mining and feature extraction creating clean dataset in `ml_pipeline/data/` (782 rows, 20 columns raw; 38 features).
+- Verified via `tests/test_data_engineering_and_ml.py` (4/4 tests passed).
 
 ---
 
@@ -781,7 +937,59 @@ Gold does not move in a vacuum; it responds to silver movements, crude oil infla
 #### 1. Layman's Explanation
 Many algorithmic trading projects look fantastic in backtests because they secretly overfit to past data or ignore the real-world costs of buying and selling physical bullion. Phase 10 subjects our machine learning models to strict untouched holdout testing and models the actual retail transaction costs in India.
 
-#### 2. Backtest Findings & Physical Friction Realities
+#### 2. Walk-Forward Holdout & Friction Flowchart
+
+```mermaid
+flowchart TD
+    DATA["38-Factor Time Series Matrix"] --> SPLIT["Walk-Forward Time Splits"]
+    
+    subgraph Model_Benchmarking ["Multi-Model Evaluation Across 4 Algorithm Families"]
+        M1["Naive Majority Baseline: 59.86% Accuracy"]
+        M2["Regularized Logistic L2: 50.34% (-9.52% Edge)"]
+        M3["Random Forest: 47.96% (-11.90% Edge)"]
+        M4["HistGradientBoosting: 49.32% (-10.54% Edge)"]
+    end
+
+    SPLIT --> Model_Benchmarking
+    Model_Benchmarking --> HOLDOUT["Untouched Out-of-Sample Holdout Testing"]
+
+    HOLDOUT --> REALITY["Real Holdout Evaluation: 51.19% vs 59.52% (-8.33% Deficit)"]
+    
+    REALITY --> FRICTION["Physical Bullion Friction Simulation"]
+    subgraph Friction_Modeling ["Indian Physical Bullion Cost Reality"]
+        FRICTION --> COSTS["4.0% Round-Trip Costs: 1% Spread + 3% GST + Hallmarking"]
+        COSTS --> SHARPE["Trading Sharpe Ratio: -4.63 (Rapid Capital Destruction)"]
+    end
+
+    Friction_Modeling --> GATE{"Institutional Edge > 3.0% Hurdle?"}
+    GATE -->|FAIL| LOCK["RULE-016 & RULE-017 Gating Enforced<br/>1. Directional Prediction REJECTED<br/>2. trend_signal_validated = FALSE<br/>3. Complete AI Silence on Direction"]
+```
+
+```
++-----------------------------------------------------------------------------------+
+|               PHASE 10: ML BENCHMARK, HOLDOUT & FRICTION SIMULATION               |
++-----------------------------------------------------------------------------------+
+ [38-Factor Dataset] ───> [Walk-Forward Multi-Model Evaluation]
+                                   │
+                                   ├── Naive Majority:       59.86% Accuracy (Baseline)
+                                   ├── Logistic (L2):        50.34% Accuracy (-9.52% Edge)
+                                   ├── Random Forest:        47.96% Accuracy (-11.90% Edge)
+                                   └── HistGradientBoosting: 49.32% Accuracy (-10.54% Edge)
+                                   │
+                                   ▼
+ [Untouched Holdout Test] ──> Real Holdout: 51.19% vs 59.52% Baseline (-8.33% Deficit)
+                                   │
+                                   ▼
+ [Physical Friction Model] ──> 4.0% Round-Trip Costs (1% Spread + 3% Non-Refundable GST)
+                                   │
+                                   ▼
+ [Institutional Gating]   ──> Sharpe Ratio: -4.63 (Direct Capital Destruction)
+                              Verdict: FAIL Gating Hurdle (< 3.0% Edge)
+                              Invariants: trend_signal_validated = FALSE strictly locked!
++-----------------------------------------------------------------------------------+
+```
+
+#### 3. Backtest Findings & Physical Friction Realities
 - **Model Families Evaluated (`ml_pipeline/trend_signal/advanced_ml_benchmark.py`):**
   - Naive Majority Class Baseline: **59.86%**
   - Regularized Logistic Regression (L2): **50.34%** (Edge: **-9.52%**)
@@ -791,6 +999,10 @@ Many algorithmic trading projects look fantastic in backtests because they secre
 - **Physical Bullion Friction Simulation:** Modeled 4% Indian retail round-trip costs (dealer spread + non-recoverable 3% GST + hallmark deductions). Because 5-day price moves average 0.5%–1.2%, short-horizon trading yields an annualized Sharpe ratio of **-4.63** (guaranteed capital destruction).
 - **Gating Invariant (RULE-016 & RULE-017):** Directional predictions strictly rejected; `trend_signal_validated` locked to `FALSE`.
 
+#### 4. Acceptance Criteria Verification
+- Walk-forward benchmark executed across 4 model classes with zero lookahead bias.
+- Gating invariant verified in test suite: `test_ml_benchmark_enforces_gating_invariant_rule_016` passed.
+
 ---
 
 ### Phase 11: Red Team Privacy & Security Audit
@@ -798,7 +1010,55 @@ Many algorithmic trading projects look fantastic in backtests because they secre
 #### 1. Layman's Explanation
 To protect family members from online attackers, account hijacking, and data leaks, an adversarial Red Team security and privacy audit was conducted across every layer of the architecture.
 
-#### 2. Remediated Vulnerabilities (VULN-01 to VULN-07)
+#### 2. Adversarial Audit & Remediation Flowchart
+
+```mermaid
+flowchart TD
+    AUDIT["Red Team Adversarial Audit"] --> TARGETS["Audit Targets & Attack Vectors"]
+
+    subgraph Vulnerabilities ["Discovered & Remediated Vulnerabilities"]
+        TARGETS --> V1["VULN-01: IDOR on Alert API (/api/alerts/create)"]
+        TARGETS --> V2["VULN-02: CWE-208 Timing Attack on Secrets"]
+        TARGETS --> V3["VULN-03: Missing HTTP Security Headers"]
+        TARGETS --> V4["VULN-04: CWE-400 In-Memory Heap DoS"]
+        TARGETS --> V5["VULN-05: Prompt Injection & Token Exhaustion"]
+        TARGETS --> V6["VULN-06: Public Alert Endpoint Flooding"]
+        TARGETS --> V7["VULN-07: PII Residuals in Git History"]
+    end
+
+    subgraph Mitigations ["Cryptographic & Architectural Fixes"]
+        V1 --> F1["Sandbox Simulation Isolation for Unauthenticated Calls"]
+        V2 --> F2["Constant-Time crypto.timingSafeEqual Comparison"]
+        V3 --> F3["Injected Strict CSP, X-Frame DENY, HSTS, Nosniff"]
+        V4 --> F4["Bounded LRU Storage (Max 5,000 Keys) + Pruning"]
+        V5 --> F5["500-Char Limit + XML Boundary Encapsulation (RULE-022)"]
+        V6 --> F6["Sliding-Window IP Rate Limiter (10 req/min)"]
+        V7 --> F7["git-filter-repo Permanent Commit Tree Scrubbing"]
+    end
+
+    Mitigations --> VERIFY["Automated Red Team Suite: tests/test_red_team_audit.mjs (12/12 Passed)"]
+```
+
+```
++-----------------------------------------------------------------------------------+
+|                     PHASE 11: RED TEAM SECURITY & PRIVACY REMEDIATION             |
++-----------------------------------------------------------------------------------+
+ [Adversarial Attack Simulation]
+         │
+         ├── [VULN-01: IDOR Alert API]      ──> Isolated Simulation Mode for Sandbox
+         ├── [VULN-02: Timing Leak (CWE-208)] ──> Constant-Time crypto.timingSafeEqual
+         ├── [VULN-03: HTTP Header Injection] ──> Strict HSTS, X-Frame DENY, nosniff
+         ├── [VULN-04: Memory Heap DoS]     ──> Bounded LRU Cache (Max 5,000 Identifiers)
+         ├── [VULN-05: Prompt Injection]    ──> 500-Char Cutoff + XML Data Delimitation
+         ├── [VULN-06: Endpoint Abuse]      ──> Per-IP Sliding-Window Rate Limiter
+         └── [VULN-07: PII in Git Trees]    ──> git-filter-repo Complete Cryptographic Purge
+         │
+         ▼
+ [Verification: tests/test_red_team_audit.mjs — 12/12 Passed (Zero Leaks, Zero IDOR)]
++-----------------------------------------------------------------------------------+
+```
+
+#### 3. Remediated Vulnerabilities (VULN-01 to VULN-07)
 1. **VULN-01 (IDOR Account Hijacking):** Alert creation route (`/api/alerts/create`) now runs public web visitors in an isolated `SANDBOX_SIMULATION` mode, preventing arbitrary users from mutating real database records without authentication.
 2. **VULN-02 (CWE-208 Timing Attack on Secrets):** Implemented constant-time cryptographic buffer comparisons (`crypto.timingSafeEqual`) for all webhook and cron secret tokens.
 3. **VULN-03 (HTTP Security Headers):** Injected strict `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security`, `Referrer-Policy`, and `Permissions-Policy` in `next.config.mjs`.
@@ -807,6 +1067,10 @@ To protect family members from online attackers, account hijacking, and data lea
 6. **VULN-06 (Alert Endpoint Abuse):** Added sliding-window IP rate limiting (10 req/min) on `/api/alerts/create`.
 7. **VULN-07 (PII Sanitization & Permanent Git History Purge):** Executed `git-filter-repo` to permanently erase all personal identifiers across all historical git commits, trees, and blobs.
 
+#### 4. Acceptance Criteria Verification
+- Automated Red Team audit test suite in `tests/test_red_team_audit.mjs` executed cleanly (12/12 passed).
+- Zero occurrences of sensitive personal identifiers across entire commit history (`git rev-list --all`).
+
 ---
 
 ### Phase 12: Daily Morning Digest & Vercel Cron Integration
@@ -814,7 +1078,51 @@ To protect family members from online attackers, account hijacking, and data lea
 #### 1. Layman's Explanation
 Family members shouldn't have to remember to check prices manually every day. Phase 12 configures an automated morning bullion briefing sent directly to their Telegram app at 9:00 AM IST.
 
-#### 2. Architecture & Implementation
+#### 2. Architecture & Cron Flowchart
+
+```mermaid
+flowchart TD
+    CRON["Vercel Cron Trigger<br/>Schedule: 30 3 * * * (09:00 AM IST)"] --> SEC{"Authorization Header<br/>Matches CRON_SECRET?"}
+    
+    SEC -->|Invalid or Missing| DROP["HTTP 401 Unauthorized - Silent Drop"]
+    SEC -->|Constant-Time Valid| EXEC["app/api/cron/daily-digest/route.ts"]
+
+    subgraph Digest_Execution ["Dual Execution Pipeline"]
+        EXEC --> SUB1["1. Database Maintenance - Spec §7"]
+        SUB1 --> PRUNE["Purge chat_log records > 90 days"]
+
+        EXEC --> SUB2["2. Digest Delivery - Spec §2 & §8"]
+        SUB2 --> QUERY["Query Registered Users from database"]
+        QUERY --> MSG["Assemble Morning Briefing Template<br/>- Cultural Hindi Greeting<br/>- Landed 24K Price & 15-Day MA Context<br/>- Non-Directive Factual Tone"]
+        MSG --> DISP["Telegram sendMessage API Dispatch"]
+    end
+
+    Digest_Execution --> LOG["Return JSON: ok: true, usersNotified, retentionPurgedLogs"]
+```
+
+```
++-----------------------------------------------------------------------------------+
+|               PHASE 12: DAILY MORNING DIGEST & 90-DAY RETENTION CRON              |
++-----------------------------------------------------------------------------------+
+ [Vercel Cron: 03:30 UTC = 09:00 AM IST Daily]
+                    │
+                    ▼ (Authorization: Bearer ${CRON_SECRET})
+ [app/api/cron/daily-digest/route.ts]
+   │
+   ├── [Timing-Safe Auth Check] ────> Validates token via crypto.timingSafeEqual
+   │
+   ├── [90-Day Retention Cleanup] ──> Deletes chat_log entries older than 90 days (Spec §7)
+   │
+   ├── [User Registry Query] ───────> Pulls registered Telegram users from 'users' table
+   │
+   └── [Morning Dispatch Pipeline]
+         ├── Generates Landed Price Snapshot & 15-day MA Deviation
+         ├── Formats Warm Non-Directive Briefing in Spoken Hindi
+         └── Broadcasts to Users via Telegram Bot API
++-----------------------------------------------------------------------------------+
+```
+
+#### 3. Architecture & Implementation
 - **Vercel Cron (`vercel.json`):** Configured with cron schedule `30 3 * * *` (03:30 UTC = **09:00 AM IST** daily), the exact cadence supported on Vercel's Hobby tier (Spec §8).
 - **Daily Digest Route (`app/api/cron/daily-digest/route.ts`):** Validates `CRON_SECRET` using timing-safe comparison, queries registered users in `users`, and dispatches the formatted morning briefing:
   ```text
@@ -829,6 +1137,86 @@ Family members shouldn't have to remember to check prices manually every day. Ph
 - **90-Day Retention Cleanup (Spec §7):** Automatically prunes historical records in `chat_log` older than 90 days during the daily digest execution.
 - **Automatic User Enrollment:** Updated `app/api/telegram/webhook/handler.ts` so sending `/start` automatically registers the user into the `users` table for daily digests.
 - **GitHub Actions Step Conditional Fix:** Fixed `.github/workflows/hourly_fetch.yml` to ensure secret-level conditional evaluation properly triggers the hourly alert engine.
+
+#### 4. Acceptance Criteria Verification
+- Automated test suite in `tests/test_daily_digest.mjs` verifies timing-safe authorization and non-directive message formatting (2/2 passed).
+
+---
+
+### Phase 13: CI/CD Pipeline Resilience & FFmpeg Runner Integration
+
+#### 1. Layman's Explanation
+To ensure code never breaks in production and that automated systems run cleanly forever without human babysitting, Phase 13 builds a bulletproof Continuous Integration & Continuous Deployment (CI/CD) evaluation suite on GitHub Actions. It automatically provisions necessary multimedia audio binaries (FFmpeg), runs all data engineering benchmarks, enforces quantitative invariants, and executes 100% of our test suites before any code can merge.
+
+#### 2. CI/CD Gating Suite Flowchart & Architecture
+
+```mermaid
+flowchart TD
+    TRIGGER["Git Push or PR to main"] --> CI["GitHub Actions: ml_pipeline_eval.yml"]
+    
+    subgraph Environment_Setup ["Runner Environment Initialization"]
+        CI --> CHECKOUT["Check out repository"]
+        CHECKOUT --> SYS_DEP["Install System Dependencies (FFmpeg)<br/>sudo apt-get install -y ffmpeg"]
+        SYS_DEP --> PY["Setup Python 3.13 + pip install"]
+        PY --> NODE["Setup Node.js 20 + npm ci"]
+    end
+
+    subgraph ML_Evaluation_Gate ["Quantitative Pipeline & Invariant Gating"]
+        NODE --> MINING["Run Multi-Asset Mining & Feature Extraction"]
+        MINING --> EDA["Run Econometric EDA & Stationarity Profiling"]
+        EDA --> BENCH["Execute Multi-Model Walk-Forward ML Benchmark"]
+        BENCH --> GATE["Verify Gating Invariant (RULE-016 & RULE-017)<br/>assert edge < 3.0% & 'FAIL' in gating_result"]
+    end
+
+    subgraph Test_Execution ["Full-Spectrum Automated Test Suites"]
+        GATE --> PYTEST["Run Pytest Suite (18/18 Tests)<br/>- Data Engineering & ML Invariants<br/>- FFmpeg Opus Voice Pipeline (48kHz Mono OGG)<br/>- Alerts State Machine & SQL Parameterization"]
+        PYTEST --> TS_TEST["Run TypeScript Test Suite (30/30 Tests)<br/>- Webhook Gateway & Secret Token Verification<br/>- Deterministic Financial Tools<br/>- Threat Model & Red Team Cryptographic Audits<br/>- Daily Morning Digest & 90-Day Retention"]
+        TS_TEST --> BUILD["Verify Next.js Production Build (npm run build)"]
+    end
+
+    BUILD --> DEPLOY["Clean Green CI/CD Build - 48/48 Passing"]
+```
+
+```
++-----------------------------------------------------------------------------------+
+|               PHASE 13: CI/CD PIPELINE RESILIENCE & GATING SUITE                  |
++-----------------------------------------------------------------------------------+
+ [GitHub Actions Trigger: Push / Pull Request to main]
+                          │
+                          ▼
+ [Environment Init] ───> Install System Dependencies: sudo apt-get install -y ffmpeg
+                          │ (Ensures FFmpeg libopus & ffprobe are present on runner)
+                          ▼
+ [ML & Invariant]   ───> 1. Multi-Asset Mining (GC=F, SI=F, INR=X, CL=F, ^TNX)
+                         2. 38-Factor Feature Extraction & Stationarity Profiling
+                         3. Walk-Forward ML Benchmark & Holdout Testing
+                         4. Invariant Verification: assert edge < 3.0% & trend_signal = FALSE
+                          │
+                          ▼
+ [Automated Tests]  ───> 1. Pytest Suite (18/18 Passed):
+                            ├── Ingestion, Landed Math, Cache Fallback (RULE-011)
+                            ├── FFmpeg Opus 48kHz Mono Voice Pipeline (RULE-006)
+                            └── Alert Triggers & 48h Suppression Window
+                         2. TypeScript Suite (30/30 Passed):
+                            ├── Webhook Timing-Safe Token Gate (RULE-004)
+                            ├── Deterministic Tools & Affordability Math (RULE-001)
+                            ├── Threat Model Vectors (Prompt Injection, Rate Limits)
+                            ├── Red Team Cryptographic Audit (Timing & DoS Defense)
+                            └── Daily Morning Digest Cron & 90-Day Retention
+                          │
+                          ▼
+ [Build Integrity]  ───> Next.js Production Build (npm run build) — 0 Errors, 7 Routes
++-----------------------------------------------------------------------------------+
+```
+
+#### 3. Engineering Details & Invariant Enforcement
+- **Automated Dependency Provisioning:** Injects `sudo apt-get update && sudo apt-get install -y ffmpeg` on GitHub Actions `ubuntu-latest` runners, ensuring binary availability for `ffmpeg` and `ffprobe`.
+- **Defensive Runner Fallback (RULE-011):** Wrapped live transcoding tests in `tests/test_phase4_voice.py` with `shutil.which("ffmpeg")` checks to gracefully skip in minimal developer containers while strictly validating in CI.
+- **Unified Continuous Integration:** Wires all 18 Python tests and 30 TypeScript tests into `.github/workflows/ml_pipeline_eval.yml`.
+
+#### 4. Acceptance Criteria Verification
+- Full CI evaluation runs cleanly on GitHub Actions across Python 3.13, Node.js 20, Next.js build, and test suites.
+- Total test coverage: **48/48 tests passing (100% green)**.
 
 ---
 
