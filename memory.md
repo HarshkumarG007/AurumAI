@@ -116,11 +116,14 @@
   - Gemini: Free tier quota verified in Google AI Studio.
   - Gold/Silver Duty (15%) + GST (3%) formula verified.
 - **GATE STATUS**:
+  - Codebase linked and pushed to remote GitHub repository: `https://github.com/HarshkumarG007/AurumAI` (branch `main`).
   - Stopped before public deployment to get explicit human confirmation per build instructions. Real bot talking to real family member is a one-way door.
 
 ## Known Risks & Standing Checklist
 - [x] All 7 implementation phases built and verified with automated test suites.
+- [x] Code pushed to remote GitHub repository `https://github.com/HarshkumarG007/AurumAI`.
 - [ ] Explicit human confirmation received before public production deployment.
+- [ ] Configure production secrets in GitHub Repo Settings (`Settings -> Secrets and variables -> Actions`) and deployment platform.
 - [ ] Hindi message templates tone-checked by native/fluent speaker before family member onboarding (RULE-018).
 - [ ] GitHub Actions scheduled workflows monthly keepalive in place (RULE-023).
 
