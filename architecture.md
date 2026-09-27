@@ -87,3 +87,66 @@ The estimate will likely not match a local jeweler's quoted price exactly, becau
 | Gemini free tier rate-limited or down | Send a canned Hindi template with the raw price and percentile, no agent-composed text |
 | GitHub Actions scheduled workflow auto-disabled (60-day inactivity) | Task in `task.md` to add a quarterly check |
 | Supabase project paused | Should not occur given the hourly fetch keeps it active; if it does, fetch job's own failure is the trigger to check this first |
+
+---
+
+## 7. End-to-End Quantitative ML Pipeline & Full-Stack Architecture
+
+```mermaid
+flowchart TD
+    subgraph DataMining [1. Multi-Asset Data Mining & Ingestion]
+        YF[Yahoo Finance / Comex API] --> RAW[Raw Assets: GC=F, SI=F, INR=X, CL=F, ^TNX]
+        RAW --> MINER[multi_asset_miner.py]
+        MINER --> CLEAN[multi_asset_cleaned.csv: 782 Trading Days, 20 Features]
+    end
+
+    subgraph FeatureEng [2. Feature Engineering & Econometrics]
+        CLEAN --> FE[feature_engineer.py]
+        FE --> MATRIX[features_matrix.csv: 38 Landed, Technical & Macro Features]
+        MATRIX --> EDA[eda_profiler.py: Stationarity ADF Tests, Kurtosis, Correlation Scans]
+        EDA --> EDARPT[eda_report.json & EDA_REPORT.md]
+    end
+
+    subgraph MLBenchmark [3. Walk-Forward Benchmark & Invariant Gating]
+        MATRIX --> BENCH[advanced_ml_benchmark.py: 7 Rolling Walk-Forward Folds]
+        BENCH --> M1[Naive Majority Baseline: 59.86%]
+        BENCH --> M2[Regularized Logistic L2: 50.34%]
+        BENCH --> M3[Random Forest: 47.96%]
+        BENCH --> M4[HistGradientBoosting: 49.32%]
+        M1 & M2 & M3 & M4 --> GATE{Statistical Edge > 3.0%?}
+        GATE -->|No: Edge = -9.52%| FAIL[FAIL: RULE-016 Enforced. Silence Invariant Active]
+        FAIL --> RPT[ml_benchmark_results.json]
+    end
+
+    subgraph FullStackUI [4. Full-Stack Next.js Frontend Command Center]
+        RPT & EDARPT --> HIST_API[/api/market/history]
+        DB[(Supabase PostgreSQL)] --> LIVE_API[/api/market/live]
+        LIVE_API & HIST_API --> DASHBOARD[Vercel: https://aurumai-opal.vercel.app]
+        DASHBOARD --> TICKERS[24K / 22K / Silver Live Tickers & MA Overlays]
+        DASHBOARD --> SVGCHART[Interactive SVG Trend Chart]
+        DASHBOARD --> CALC[Deterministic Affordability Calculator - RULE-001]
+        DASHBOARD --> MLLAB[Multi-Model ML Benchmark Selector & ADF Table]
+        DASHBOARD --> ARBITRAGE[International Spot vs Domestic Landed Duty Explorer]
+        DASHBOARD --> ALERT_GEN[Custom Price Alert Creator & Simulator -> /api/alerts/create]
+        DASHBOARD --> CHAT[Conversational Hindi Voice Companion Sandbox]
+    end
+
+    subgraph CICD [5. CI/CD Workflows & Drift Detection]
+        GH[GitHub Actions: ml_pipeline_eval.yml] --> AUTO_EVAL[Weekly Retraining, Drift Scans & Invariant Testing]
+        AUTO_EVAL --> TEST_SUITE[pytest 18/18 PASS + tsx 16/16 PASS]
+        TEST_SUITE --> GATING_ASSERT[Assert Edge < 3.0% & Gated Status]
+    end
+```
+
+## 8. Security & Invariant Matrix (Rules Enforcement)
+
+| Rule ID | Invariant | Architecture Implementation | Status |
+|---|---|---|---|
+| **RULE-001** | Zero LLM Financial Math | Unit conversions, landed prices, and tax breakdown computed strictly in deterministic TypeScript / Python. | **Enforced** |
+| **RULE-002** | Strict Non-Directive Stance | Voice & Chat personas explicitly decline buy/sell recommendations, emphasizing factual market context. | **Enforced** |
+| **RULE-004** | Webhook Spoofing Defense | Telegram secret token validated in constant time; spoofed requests return 200 OK silently without execution. | **Enforced** |
+| **RULE-016** | Out-of-Sample Predictive Gating | All ML prediction features remain strictly disabled (`trend_signal_validated == false`) until edge > 3.0%. | **Enforced** |
+| **RULE-017** | Database Default Gating | `trend_signal_validated` defaults to `FALSE` in Postgres schema; never overridden by application logic. | **Enforced** |
+| **RULE-018** | Native Hindi Fluency | Conversational greetings and culturally fluent tone for North Indian family context. | **Enforced** |
+| **RULE-021** | Zero Persistent Voice Storage | Voice files generated in memory / OS temp directory and deleted immediately after dispatch. | **Enforced** |
+

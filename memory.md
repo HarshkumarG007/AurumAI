@@ -117,23 +117,41 @@
   - Gold/Silver Duty (15%) + GST (3%) formula verified.
 - **GATE STATUS**:
   - Codebase linked and pushed to remote GitHub repository: `https://github.com/HarshkumarG007/AurumAI` (branch `main`).
-  - Stopped before public deployment to get explicit human confirmation per build instructions. Real bot talking to real family member is a one-way door.
+### Phase 8: Full-Stack Frontend Command Center — VERIFIED COMPLETE
+- **Built**:
+  - `app/globals.css`: Luxury obsidian-gold glassmorphic design system (`#080A0F`, `#D4AF37`, `#F59E0B`, `Outfit`, `Inter`, `JetBrains Mono`) with responsive grid, glowing micro-animations, telemetry bar, and clean tables.
+  - `app/layout.tsx`: Root layout with comprehensive OpenGraph, Twitter card, and SEO metadata.
+  - `app/page.tsx`: Interactive full-stack dashboard featuring:
+    - Live Bullion Tickers (24K, 22K, Silver) with moving average benchmark meters (MA7, MA15, MA30).
+    - Interactive SVG Price Trajectory Chart with toggleable MA overlays.
+    - Pure Deterministic Unit & Affordability Calculator (Grams, Tolas, Pavans, Troy Ounces + 15% Duty + 3% GST breakdown per RULE-001).
+    - International Spot vs Domestic Landed Arbitrage Breakdown (COMEX Spot -> FX -> Duty -> GST).
+    - Live Target Alert Console (`/api/alerts/create`) wireable to Supabase with real-time state machine feedback.
+    - Web Conversation Sandbox with native Hindi responses, disclaimer injection, and in-browser voice synthesis preview.
+- **Verified**:
+  - Successfully built with Next.js App Router: `npm run build` completed with 0 errors across 6 static/dynamic routes.
+  - Live on Vercel: `https://aurumai-opal.vercel.app` fully deployed and serving live Supabase data.
+
+### Phase 9: Quantitative Data Engineering, EDA & Walk-Forward ML Benchmark — VERIFIED COMPLETE
+- **Built**:
+  - `ml_pipeline/data_engineering/multi_asset_miner.py`: Multi-asset data mining pipeline ingesting Gold (`GC=F`), Silver (`SI=F`), USD/INR (`INR=X`), Crude Oil (`CL=F`), US 10Y Yields (`^TNX`). Produced `multi_asset_cleaned.csv` (782 trading days, 20 clean columns).
+  - `ml_pipeline/data_engineering/feature_engineer.py`: 38 institutional features: landed domestic prices, MAs (7, 15, 30, 50, 200), Golden Cross, trailing returns (1d, 5d, 15d, 30d), RSI14, MACD, volatility, Bollinger Bands (%B and width), Gold-to-Silver ratio, Gold-to-Oil ratio, and forward targets. Produced `features_matrix.csv`.
+  - `ml_pipeline/data_engineering/eda_profiler.py`: Econometric profiling executing Augmented Dickey-Fuller (ADF) stationarity tests, return distribution analysis (skewness: -1.062, kurtosis: 6.293, annualized vol: 23.44%), and predictive correlation scans. Exported `eda_report.json` and `EDA_REPORT.md`.
+  - `ml_pipeline/trend_signal/advanced_ml_benchmark.py`: Evaluated 4 model families (Naive Majority, Regularized Logistic L2, Random Forest, HistGradientBoosting) across 7 rolling walk-forward folds (252-day train, 42-day test).
+  - Gating Verdict: Best candidate accuracy = 50.34% vs 59.86% naive baseline (Empirical Edge = -9.52%). RULE-016 & RULE-017 strictly enforced; `trend_signal_validated` remains `FALSE`.
+  - `app/api/alerts/create/route.ts`: Production API endpoint for registering and simulating price alerts with 48h cooldown anti-spam state machine.
+  - `.github/workflows/ml_pipeline_eval.yml`: Automated CI/CD workflow running data mining, feature matrix generation, EDA drift checks, walk-forward benchmark evaluation, pytest suite, tsx threat model tests, and invariant assertion.
+- **Verified**:
+  - `tests/test_data_engineering_and_ml.py`: 4 tests passed in 0.35s.
+  - Total automated test suite: 18 Python tests + 16 TypeScript tests = **34/34 tests passing (100%)**.
 
 ## Known Risks & Standing Checklist
-- [x] All 7 implementation phases built and verified with automated test suites.
-- [x] Code pushed to remote GitHub repository `https://github.com/HarshkumarG007/AurumAI`.
-- [x] Live Telegram Bot (`@Aurum_AI_Family_Bot`) verified with native voice note delivery to chat ID `REDACTED_CHAT_ID`.
-- [x] Live Supabase PostgreSQL database (`[REDACTED_PROJECT_REF].supabase.co`) created with RLS and verified with real market data rows.
-- [x] Live Google Gemini API connected and verified with model `gemini-3.8-flash` and tool-calling execution.
-- [x] Hindi conversational persona tone reviewed for cultural warmth and non-directive financial invariants (RULE-018).
-- [x] Configure production secrets in GitHub Repo Settings (`Settings -> Secrets and variables -> Actions`) for 24/7 background cron.
-- [x] Register live production Telegram webhook on Vercel deployment (`https://aurumai-opal.vercel.app/api/telegram/webhook`).
-- [x] GitHub Actions scheduled workflows monthly keepalive in place (RULE-023).
+- [x] All 7 foundational phases + Phase 8 (Frontend) + Phase 9 (ML Pipeline & EDA) built and verified.
+- [x] Frontend live at `https://aurumai-opal.vercel.app` with real-time tickers, interactive chart, calculator, ML lab, arbitrage explorer, and alert creator.
+- [x] Telegram Bot (`@Aurum_AI_Family_Bot`) verified with native voice notes and webhook connection.
+- [x] Live Supabase PostgreSQL database active with RLS and automated schema constraints.
+- [x] Multi-asset quantitative data engineering pipeline and 38-feature matrix fully reproducible.
+- [x] Econometric stationarity (ADF tests) and fat-tailed distribution (kurtosis 6.29) documented.
+- [x] 4-model walk-forward ML benchmark confirms negative empirical edge (-9.52%); RULE-016 silence invariant actively enforced.
+- [x] Weekly CI/CD ML drift and invariant testing workflow active in `.github/workflows/ml_pipeline_eval.yml`.
 
-## Major Bugs
-
-*(none yet)*
-
-## Architectural Changes
-
-*(initial architecture underway)*
