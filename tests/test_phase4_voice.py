@@ -15,6 +15,7 @@ import json
 import asyncio
 import subprocess
 import tempfile
+import shutil
 import pytest
 from pathlib import Path
 from unittest.mock import patch
@@ -29,6 +30,9 @@ from ml_pipeline.tts_convert import text_to_ogg_opus
 @pytest.mark.asyncio
 async def test_edge_tts_and_ffmpeg_opus_encoding():
     """Verify that text_to_ogg_opus generates a valid OGG container with Opus codec at 48kHz mono."""
+    if not shutil.which("ffmpeg") or not shutil.which("ffprobe"):
+        pytest.skip("FFmpeg or ffprobe not installed in local environment; skipping live transcode verification.")
+
     sample_text = "Namaste! Aaj 24K gold ka rate pichle 15 din ke average se thoda kam hai. Yeh anumaanit keemat hai."
     
     with tempfile.NamedTemporaryFile(suffix=".ogg", delete=False) as tmp:

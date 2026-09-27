@@ -112,3 +112,10 @@
 - [x] Automated test suite: `tests/test_daily_digest.mjs` (2/2 tests passed)
 - [x] Total automated test suite: 18 Python tests + 30 TypeScript tests = **48/48 passed (100%)**
 
+## Phase 13 — CI/CD Pipeline Resilience & FFmpeg Runner Integration
+- [x] Diagnosed GitHub Actions workflow failure on `ml_pipeline_eval.yml` (run `36310305236`): runner `ubuntu-latest` lacked system `ffmpeg` binary
+- [x] Added `Install System Dependencies (FFmpeg)` (`sudo apt-get install -y ffmpeg`) prior to running pytest suite
+- [x] Integrated `tests/test_daily_digest.mjs` into GitHub Actions TypeScript test execution suite
+- [x] Implemented defensive `shutil.which("ffmpeg")` skip guard in `tests/test_phase4_voice.py` for headless local development environments
+- [x] Verified full local test suite passing (18/18 Python + 30/30 TypeScript = 48/48 tests, 100% green)
+
