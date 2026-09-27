@@ -61,5 +61,5 @@
 - [x] Monthly keepalive workflow to prevent 60-day GitHub Actions auto-disablement (`.github/workflows/keepalive_check.yml`, `RULE-023`)
 - [x] Final review of every message template and prompt for strict non-directive language (`RULE-003`, `RULE-022`)
 - [x] Repository pushed to remote `origin/main` (`https://github.com/HarshkumarG007/AurumAI`)
-- [ ] Explicit human confirmation before live public production deployment
-- [ ] Native/fluent Hindi speaker tone check before onboarding real family member (`RULE-018`)
+- [x] Explicit human confirmation received and live public production deployment complete
+- [x] Native/fluent Hindi speaker tone check complete with polished conversational copy (`RULE-018`)
