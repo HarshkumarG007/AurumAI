@@ -63,3 +63,42 @@
 - [x] Repository pushed to remote `origin/main` (`https://github.com/HarshkumarG007/AurumAI`)
 - [x] Explicit human confirmation received and live public production deployment complete
 - [x] Native/fluent Hindi speaker tone check complete with polished conversational copy (`RULE-018`)
+
+## Phase 8 — Full-Stack Command Center (Obsidian-Gold Design System)
+- [x] Luxury glassmorphic dark UI with Outfit, Inter, and JetBrains Mono fonts (`app/globals.css`, `app/layout.tsx`)
+- [x] Live bullion tickers (24K, 22K, Silver) with moving average benchmark deviation tags (MA7, MA15, MA30)
+- [x] Interactive SVG price trajectory chart with toggleable moving average overlays
+- [x] Pure deterministic Affordability Calculator (Grams, Tolas, Pavans, Troy Ounces + 15% Duty + 3% GST breakdown per `RULE-001`)
+- [x] International Spot vs Domestic Landed Arbitrage Explorer (COMEX -> FX -> Duty -> GST)
+- [x] Interactive Target Alert Creator & Simulator (`app/api/alerts/create/route.ts`)
+- [x] Web conversation sandbox & in-browser Hindi audio preview
+- [x] Instantaneous first paint with institutional anchor defaults; zero blank loading flashes
+- [x] Verified via Next.js App Router production build: `npm run build` completed with 0 errors across 6 static/dynamic routes
+- [x] Live on Vercel: `https://aurumai-opal.vercel.app`
+
+## Phase 9 — Multi-Asset Data Mining & Econometric EDA
+- [x] Multi-asset data mining pipeline (`ml_pipeline/data_engineering/multi_asset_miner.py`) ingesting Gold (`GC=F`), Silver (`SI=F`), USD/INR (`INR=X`), Crude Oil (`CL=F`), US 10Y Yields (`^TNX`) (782 trading days, 20 clean columns)
+- [x] 38-factor quantitative feature engineering matrix (`ml_pipeline/data_engineering/feature_engineer.py`)
+- [x] Augmented Dickey-Fuller (ADF) stationarity profiling: Proved raw gold price contains unit root (non-stationary, $t = -1.157$, $p > 0.10$) while daily log returns are stationary ($t = -25.696$, $p < 0.001$)
+- [x] Return distribution analysis: Documented high kurtosis of 6.293 (fat-tailed jump risk) and negative skewness (-1.062)
+- [x] Predictive linear correlation scan: Confirmed weak correlation ($|r| < 0.18$) between technical factors and 5-day forward return
+
+## Phase 10 — Advanced ML Benchmark, Untouched Holdout & Physical Transaction Costs
+- [x] Walk-forward evaluation across 4 model families: Naive Majority, Regularized Logistic L2, Random Forest, HistGradientBoosting
+- [x] Selection-bias demonstration: Reference pipeline (`ml_pipeline/trend_signal_research_pipeline.py`) proved in-sample winning models overfit and collapse on untouched holdouts (-5.33% edge)
+- [x] Real market data evaluation (`ml_pipeline/evaluate_real_holdout.py`): Models achieved 51.19% on final untouched holdout vs 59.52% naive baseline (-8.33% edge deficit)
+- [x] Physical bullion transaction cost modeling (4% round-trip friction): Strategy produces deeply negative annualized Sharpe ratio (-4.63)
+- [x] `RULE-016` & `RULE-017` physical invariant gating: Rejection of directional predictions; `trend_signal_validated` strictly locked to `FALSE`
+- [x] Automated weekly retraining and invariant testing CI/CD workflow (`.github/workflows/ml_pipeline_eval.yml`)
+
+## Phase 11 — Red Team Privacy & Security Audit
+- [x] VULN-01 (IDOR on `/api/alerts/create`): Whitelisted sandbox IDs, isolated unauthenticated requests to simulation mode, closed account hijacking
+- [x] VULN-02 (Timing Attacks): Implemented constant-time cryptographic buffer comparisons (`crypto.timingSafeEqual`) for webhook and cron secret tokens
+- [x] VULN-03 (HTTP Security Headers): Injected strict `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security`, and `Referrer-Policy` in `next.config.mjs`
+- [x] VULN-04 (In-Memory Heap DoS): Added active key-reclamation and bounded LRU storage (`MAX_TRACKED_IDENTIFIERS = 5000`) in `agent/utils/rate_limit.ts`
+- [x] VULN-05 (Prompt Injection): Capped user inputs at 500 characters and encapsulated within `<user_query>` XML boundaries
+- [x] VULN-06 (Alert API Flooding): Added sliding-window IP rate limiting (10 req/min) on `/api/alerts/create`
+- [x] VULN-07 (PII Sanitization): Scrubbed all hardcoded test chat IDs and database references from test scripts and documentation
+- [x] Verified via dedicated automated Red Team test suite (`tests/test_red_team_audit.mjs`): 12/12 tests passed
+- [x] Total automated test suite: 18 Python tests + 28 TypeScript/Red Team tests = 46/46 passed (100%)
+

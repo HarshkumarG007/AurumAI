@@ -143,10 +143,28 @@
   - `.github/workflows/ml_pipeline_eval.yml`: Automated CI/CD workflow running data mining, feature matrix generation, EDA drift checks, walk-forward benchmark evaluation, pytest suite, tsx threat model tests, and invariant assertion.
 - **Verified**:
   - `tests/test_data_engineering_and_ml.py`: 4 tests passed in 0.35s.
-  - Total automated test suite: 18 Python tests + 16 TypeScript tests = **34/34 tests passing (100%)**.
+### Phase 10: Holdout Testing & Physical Transaction Costs — VERIFIED COMPLETE
+- **Built**:
+  - `ml_pipeline/trend_signal_research_pipeline.py`: Synthetic GARCH benchmark demonstrating selection-bias collapse (in-sample +3.17% collapsed to -5.33% out-of-sample).
+  - `ml_pipeline/evaluate_real_holdout.py`: Out-of-sample holdout test on real multi-asset feature matrix. Results: Final holdout accuracy 51.19% vs 59.52% naive baseline (-8.33% edge deficit).
+  - Physical Bullion Friction Simulation: Modeled 4% Indian retail round-trip costs (dealer spread + non-recoverable GST + hallmark deductions). Resulting annualized Sharpe ratio: -4.63.
+  - RULE-016 & RULE-017 strictly upheld: `trend_signal_validated` locked to `FALSE`.
+
+### Phase 11: Red Team Privacy & Security Audit — VERIFIED COMPLETE
+- **Audited & Remediated**:
+  - VULN-01: Insecure Direct Object Reference (IDOR) on `/api/alerts/create` patched with sandboxed simulation mode for unauthenticated requests and restricted DB upserts.
+  - VULN-02: Cryptographic timing attacks on secret tokens (CWE-208) eliminated using constant-time `crypto.timingSafeEqual`.
+  - VULN-03: Missing HTTP security headers patched in `next.config.mjs` (`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security`, `Referrer-Policy`, `Permissions-Policy`).
+  - VULN-04: In-memory heap exhaustion DoS (CWE-400) patched in `agent/utils/rate_limit.ts` with bounded storage (`MAX_TRACKED_IDENTIFIERS = 5000`), active cleanup, and LRU eviction.
+  - VULN-05: Prompt injection & token exhaustion defense added in `agent/gemini_agent.ts` with 500-char truncation and `<user_query>` XML instruction/data boundary.
+  - VULN-06: Endpoint abuse mitigated with sliding-window IP rate limiting (10 req/min) on `/api/alerts/create`.
+  - VULN-07: PII scrubbed from all test scripts, documentation, and database references.
+- **Verified**:
+  - `tests/test_red_team_audit.mjs`: 12/12 tests passed.
+  - Total automated test suite: 18 Python tests + 28 TypeScript/Red Team tests = **46/46 passed (100%)**.
 
 ## Known Risks & Standing Checklist
-- [x] All 7 foundational phases + Phase 8 (Frontend) + Phase 9 (ML Pipeline & EDA) built and verified.
+- [x] All 7 foundational phases + Phase 8 (Frontend) + Phase 9 (ML Pipeline & EDA) + Phase 10 (Holdout/Friction) + Phase 11 (Red Team Audit) built and verified.
 - [x] Frontend live at `https://aurumai-opal.vercel.app` with real-time tickers, interactive chart, calculator, ML lab, arbitrage explorer, and alert creator.
 - [x] Telegram Bot (`@Aurum_AI_Family_Bot`) verified with native voice notes and webhook connection.
 - [x] Live Supabase PostgreSQL database active with RLS and automated schema constraints.
@@ -154,4 +172,5 @@
 - [x] Econometric stationarity (ADF tests) and fat-tailed distribution (kurtosis 6.29) documented.
 - [x] 4-model walk-forward ML benchmark confirms negative empirical edge (-9.52%); RULE-016 silence invariant actively enforced.
 - [x] Weekly CI/CD ML drift and invariant testing workflow active in `.github/workflows/ml_pipeline_eval.yml`.
+- [x] All 7 Red Team security vulnerabilities remediated and validated by automated test suite (46/46 passing).
 
