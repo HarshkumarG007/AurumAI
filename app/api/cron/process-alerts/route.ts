@@ -63,8 +63,8 @@ export async function POST(req: NextRequest) {
 
         if (!existing || existing.length === 0) {
           const alertMsg =
-            `Namaste! Aapke dwara set kiya gaya target hit ho gaya hai.\n\n` +
-            `Aaj ${metal} ka rate ₹${snapshot.price_inr.toLocaleString("en-IN")} par aa gaya hai (Aapka target: ₹${target.toLocaleString("en-IN")}).`;
+            `Namaste! Aapka set kiya hua alert hit ho gaya hai:\n\n` +
+            `Aaj ${metal} ka bhav ₹${snapshot.price_inr.toLocaleString("en-IN")} par aa gaya hai (Aapka target: ₹${target.toLocaleString("en-IN")}).`;
 
           await sendTelegramTextMessage(user.chat_id, alertMsg, true);
 

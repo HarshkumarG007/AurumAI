@@ -63,7 +63,7 @@ export async function handleTelegramUpdate(update: any) {
   // Handle /start command
   if (userText === "/start") {
     const greeting =
-      "Namaste! Main Aurum AI hoon. Main aapko sona aur chandi ke taaza daam aur pichle dino ke bhav ka factual context bata sakta hoon.\n\nAap mujhse pooch sakte hain:\n• 'Aaj sone ka kya bhav hai?'\n• 'Chandi ka rate kya chal raha hai?'\n• '50,000 rupaye mein kitna sona aayega?'";
+      "Namaste! Main Aurum AI hoon. Main aapke parivaar ke liye sona aur chandi ke taaza bhav aur pichle dino ke daam ka hisaab laata hoon, taaki aap sahi jaankaari ke saath apna faisla le sakein.\n\nAap mujhse aasaani se pooch sakte hain:\n• 'Aaj sone ka kya bhav hai?'\n• 'Chandi ka rate kya chal raha hai?'\n• '50,000 rupaye mein kitna sona aayega?'";
     await sendTelegramTextMessage(chatId, greeting, false);
     await logInteraction(chatId, "incoming_text", userText);
     await logInteraction(chatId, "outgoing_text", greeting);

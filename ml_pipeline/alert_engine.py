@@ -113,7 +113,7 @@ class AlertEngine:
                 "price_at_alert": current_price,
                 "reference_price": target,
                 "message": (
-                    f"Namaste! Aapke dwara set kiya gaya target hit ho gaya hai.\n"
+                    f"Namaste! Aapka set kiya hua alert hit ho gaya hai:\n"
                     f"Aaj {metal} ka bhav ₹{current_price:,.2f} par aa gaya hai (Aapka target: ₹{target:,.2f})."
                 )
             }
