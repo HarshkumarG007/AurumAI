@@ -171,15 +171,38 @@
 - **Verified**:
   - Total automated test suite: 18 Python tests + 30 TypeScript tests = **48/48 passed (100%)**.
 
+### Phase 13: CI/CD Pipeline Resilience & FFmpeg Runner Integration — VERIFIED COMPLETE
+- **Diagnosed & Fixed**:
+  - Run `36310305236` on `ml_pipeline_eval.yml` failed due to missing system binary `ffmpeg` on standard `ubuntu-latest` runner.
+  - Added automated `sudo apt-get install -y ffmpeg` step to provisioning workflow.
+  - Added defensive `shutil.which("ffmpeg")` skip check in `tests/test_phase4_voice.py` for minimal local development containers.
+- **Verified**:
+  - All 18 Python tests + 30 TypeScript tests passing (48/48 green, 100%).
+
+### Phase 14: Vintage Manuscript Monograph & Interactive Journal Modal — VERIFIED COMPLETE
+- **Built**:
+  - `JOURNAL_ARTICLE.md`: 15-chapter first-person monograph by Harsh Kumar Gupta (782 trading days, ADF stationarity, fat-tailed kurtosis of 8.04, and the physical bullion friction invariant proving a -4.63 Sharpe ratio).
+  - `Aurum_AI_Build_Rules_and_Prompt.md`: Master AI build system upgraded to Version 3.0 codifying 30 strict numbered engineering rules.
+  - `README.md`: Organized documentation ecosystem into 5 context clusters with an interactive link tree covering 12 documents.
+  - `app/components/JournalManuscript.tsx`: Reusable vintage manuscript component with burned-edge vignettes, glowing ember pulse, quill & ink styling, illuminated calligraphic drop caps, and crimson wax seal.
+  - `app/journal/page.tsx`: Dedicated standalone route at `/journal` with frosted-glass navigation and SEO metadata.
+  - `app/page.tsx`: Interactive modal pop-up with ultra-deep backdrop blur (`backdrop-filter: blur(22px) saturate(190%)`), Escape key dismiss, and background scroll lock.
+  - `app/globals.css`: Burned edge animations (`@keyframes emberBurnPulse`), feather sway, wax seal styling, and responsive layout.
+  - Footer updated with `CC AurumAI 2026 All Rights Reserved • Crafted with ❤️ by Harsh Kumar Gupta, AI/ML Engineer`.
+- **Verified**:
+  - Next.js production build: 0 errors across 8 routes in 1758ms.
+  - Browser subagent visual verification confirmed modal blur, chapter navigation, and clean dismissal.
+
 ## Known Risks & Standing Checklist
-- [x] All 7 foundational phases + Phase 8 (Frontend) + Phase 9 (ML Pipeline & EDA) + Phase 10 (Holdout/Friction) + Phase 11 (Red Team Audit) + Phase 12 (Daily Digest & Cron) built and verified.
-- [x] Frontend live at `https://aurumai-opal.vercel.app` with real-time tickers, interactive chart, calculator, ML lab, arbitrage explorer, and alert creator.
+- [x] All 7 foundational phases + Phase 8 (Frontend) + Phase 9 (ML Pipeline & EDA) + Phase 10 (Holdout/Friction) + Phase 11 (Red Team Audit) + Phase 12 (Daily Digest & Cron) + Phase 13 (CI/CD FFmpeg) + Phase 14 (Vintage Manuscript Monograph) built and verified.
+- [x] Frontend live at `https://aurumai-opal.vercel.app` with real-time tickers, interactive chart, calculator, ML lab, arbitrage explorer, alert creator, interactive vintage manuscript pop-up, and dedicated `/journal` page.
 - [x] Telegram Bot (`@Aurum_AI_Family_Bot`) verified with native voice notes and webhook connection.
 - [x] Live Supabase PostgreSQL database active with RLS and automated schema constraints.
 - [x] Multi-asset quantitative data engineering pipeline and 38-feature matrix fully reproducible.
-- [x] Econometric stationarity (ADF tests) and fat-tailed distribution (kurtosis 6.29) documented.
-- [x] 4-model walk-forward ML benchmark confirms negative empirical edge (-9.52%); RULE-016 silence invariant actively enforced.
+- [x] Econometric stationarity (ADF tests) and fat-tailed distribution (kurtosis 8.04) documented.
+- [x] 4-model walk-forward ML benchmark confirms negative empirical edge under physical bullion friction (-4.63 Sharpe ratio); RULE-016 silence invariant actively enforced.
 - [x] Weekly CI/CD ML drift and invariant testing workflow active in `.github/workflows/ml_pipeline_eval.yml`.
 - [x] All 7 Red Team security vulnerabilities remediated and validated by automated test suite (48/48 passing).
 - [x] Daily morning digest (09:00 AM IST) and 90-day retention cleanup active via Vercel Cron (`vercel.json`).
+
 
