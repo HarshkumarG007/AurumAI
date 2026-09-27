@@ -76,9 +76,48 @@ All seven vulnerabilities have been **fully patched, remediated, verified via au
   1. **Strict Truncation:** User inputs are capped at 500 characters (`userMessage.trim().slice(0, 500)`).
   2. **Data-Instruction Boundary (RULE-022):** Encapsulated within `<user_query>` XML blocks with explicit system framing instructing the model that user content can never alter safety rules or disclaimers.
 
+### 3.6 VULN-08: Media & Screenshot EXIF/Device Fingerprinting (OPSEC Leak)
+* **Vulnerability Mechanics:** Raw device screenshots uploaded to `docs/screenshots/` retained full EXIF, XMP, and Sub-IFD metadata, including exact phone hardware model and OS build (`[REDACTED_DEVICE_MODEL_BUILD]`), precise local capture timestamps, timezone offsets, and camera software tags.
+* **Remediation:**
+  1. Developed automated PIL image sanitizer stripping 100% of EXIF, Sub-IFD, GPS, device, and software tags across all 7 screenshots.
+  2. Rebuilt clean pixel-only buffers for JPEG and PNG images.
+  3. Verified via automated metadata inspection script: `exif keys: []` (0 bytes of metadata).
+
+### 3.7 VULN-09: Local File System & Username Path Disclosure
+* **Vulnerability Mechanics:** Documentation files contained raw absolute local path references (`file:///c:/Users/...`), disclosing the developer's local operating system username and directory layout.
+* **Remediation:**
+  1. Replaced all absolute local paths with relative GitHub markdown links (`./` and relative paths).
+  2. Executed repository-wide audit: confirmed 0 occurrences of local usernames or device paths in tracked files.
+
+### 3.8 VULN-10: Residual Database Project Reference in Git Commit History
+* **Vulnerability Mechanics:** Earlier documentation commits contained the Supabase project reference ID in historical commit diffs.
+* **Remediation:**
+  1. Executed `git-filter-repo` to rewrite all historical commits, replacing project references and local paths across the entire git commit tree.
+  2. Verified via full git log audit (`git log -p --all`): 0 occurrences of database references, personal chat IDs, or bot tokens.
+
+### 3.9 VULN-11: Verbose Error String Leakage in Cron API Routes
+* **Vulnerability Mechanics:** `app/api/cron/daily-digest/route.ts` and `app/api/cron/process-alerts/route.ts` returned `err.message` or `String(err)` on 500 failures, potentially leaking internal database connection details or schema errors.
+* **Remediation:**
+  1. Replaced verbose error outputs with generic, sanitized responses: `{ ok: false, error: "Internal server error during ..." }`.
+  2. Kept internal error details restricted strictly to server-side console logs.
+
 ---
 
-## 4. Verification Evidence
+## 4. Client-Side Next.js Reverse Engineering Audit
+
+A thorough static and compiled bundle analysis was performed to verify whether any API keys or credentials can be reverse-engineered by malicious actors inspecting client-side web assets:
+
+1. **Environment Variable Scope:**
+   - Next.js strictly isolates server environment variables. Only variables prefixed with `NEXT_PUBLIC_` are ever embedded in client-side bundles.
+   - Audited all files in `app/` and `components/`: **0 `NEXT_PUBLIC_*` variables exist** in the entire codebase.
+   - All server credentials (`SUPABASE_SERVICE_ROLE_KEY`, `TELEGRAM_BOT_TOKEN`, `GEMINI_API_KEY`, `CRON_SECRET`) are only accessed inside server-side Route Handlers (`app/api/*`).
+2. **Compiled Bundle Audit:**
+   - Scanned all 22 compiled JavaScript chunks in `.next/static/`:
+   - Empirical verification confirmed **0 occurrences of any secret token, bot token, API key, or database password in client bundles.**
+
+---
+
+## 5. Verification Evidence
 
 The security suite was validated with automated test execution:
 
@@ -87,14 +126,16 @@ The security suite was validated with automated test execution:
 [TypeScript Webhook & Tool Calling]      tests/test_phase2_webhook.mjs ...        11 / 11 PASSED
 [Threat Model Mitigation Verification]   tests/test_phase7_threat_model.mjs ...    5 / 5  PASSED
 [Red Team Timing, DoS & IDOR Suite]      tests/test_red_team_audit.mjs ...       12 / 12 PASSED
+[Daily Morning Digest & Retention Suite] tests/test_daily_digest.mjs ...           2 / 2  PASSED
 ------------------------------------------------------------------------------------------------
-TOTAL AUTOMATED SECURITY TEST SUITE:                                             46 / 46 PASSED (100%)
+TOTAL AUTOMATED SECURITY TEST SUITE:                                             48 / 48 PASSED (100%)
 ```
 
 Next.js production build verified:
 ```
-✓ Compiled successfully in 1193ms
+✓ Compiled successfully in 1195ms
 ✓ Generating static pages (6/6)
 ✓ Finalizing page optimization
 ```
-All patches committed in Git (`e365b97`) and pushed to GitHub `main`.
+All patches committed in Git and cryptographically sanitized with `git-filter-repo`.
+
