@@ -79,7 +79,7 @@ jobs:
           TELEGRAM_BOT_SECRET_TOKEN: ${{ secrets.TELEGRAM_BOT_SECRET_TOKEN || 'test_secret_token_12345' }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || 'mock_token' }}
         run: |
-          npx tsx --test tests/test_phase2_webhook.mjs tests/test_phase3_tools.mjs tests/test_phase7_threat_model.mjs
+          npx tsx --test tests/test_phase2_webhook.mjs tests/test_phase3_tools.mjs tests/test_phase7_threat_model.mjs tests/test_red_team_audit.mjs
 
       - name: Verify Next.js Production Build
         run: |

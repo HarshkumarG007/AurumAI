@@ -7,14 +7,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { getMarketSnapshot } from "@/agent/tools/market_tools";
 import { sendTelegramTextMessage } from "@/agent/telegram/sender";
 import { createClient } from "@supabase/supabase-js";
+import crypto from "crypto";
+
+function safeCompare(a: string | null | undefined, b: string | null | undefined): boolean {
+  if (!a || !b) return false;
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
 
 export async function POST(req: NextRequest) {
   const cronSecret = process.env.CRON_SECRET;
   const authHeader = req.headers.get("authorization") || req.headers.get("x-cron-secret");
 
-  // Verify internal secret token
+  // Verify internal secret token with timing-safe comparison (CWE-208 mitigation)
   const providedSecret = authHeader?.replace("Bearer ", "");
-  if (!cronSecret || providedSecret !== cronSecret) {
+  if (!safeCompare(providedSecret, cronSecret)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
