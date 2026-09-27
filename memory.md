@@ -161,10 +161,18 @@
   - VULN-07: PII scrubbed from all test scripts, documentation, and database references.
 - **Verified**:
   - `tests/test_red_team_audit.mjs`: 12/12 tests passed.
-  - Total automated test suite: 18 Python tests + 28 TypeScript/Red Team tests = **46/46 passed (100%)**.
+### Phase 12: Daily Morning Digest & Operational Reliability — VERIFIED COMPLETE
+- **Built**:
+  - `vercel.json`: Configured Vercel Cron for daily morning digest at 09:00 AM IST (`30 3 * * *` UTC) per Spec §8.
+  - `app/api/cron/daily-digest/route.ts`: Timing-safe `CRON_SECRET` validation (CWE-208), daily morning digest dispatch to active users in `users`, and 90-day retention cleanup for `chat_log` (Spec §7).
+  - `app/api/telegram/webhook/handler.ts`: Automated user enrollment into `users` on `/start` command.
+  - `.github/workflows/hourly_fetch.yml`: Fixed step-level conditional secret evaluation and default fallback for `APP_URL`.
+  - `tests/test_daily_digest.mjs`: Automated unit test verifying authentication, message template, and retention.
+- **Verified**:
+  - Total automated test suite: 18 Python tests + 30 TypeScript tests = **48/48 passed (100%)**.
 
 ## Known Risks & Standing Checklist
-- [x] All 7 foundational phases + Phase 8 (Frontend) + Phase 9 (ML Pipeline & EDA) + Phase 10 (Holdout/Friction) + Phase 11 (Red Team Audit) built and verified.
+- [x] All 7 foundational phases + Phase 8 (Frontend) + Phase 9 (ML Pipeline & EDA) + Phase 10 (Holdout/Friction) + Phase 11 (Red Team Audit) + Phase 12 (Daily Digest & Cron) built and verified.
 - [x] Frontend live at `https://aurumai-opal.vercel.app` with real-time tickers, interactive chart, calculator, ML lab, arbitrage explorer, and alert creator.
 - [x] Telegram Bot (`@Aurum_AI_Family_Bot`) verified with native voice notes and webhook connection.
 - [x] Live Supabase PostgreSQL database active with RLS and automated schema constraints.
@@ -172,5 +180,6 @@
 - [x] Econometric stationarity (ADF tests) and fat-tailed distribution (kurtosis 6.29) documented.
 - [x] 4-model walk-forward ML benchmark confirms negative empirical edge (-9.52%); RULE-016 silence invariant actively enforced.
 - [x] Weekly CI/CD ML drift and invariant testing workflow active in `.github/workflows/ml_pipeline_eval.yml`.
-- [x] All 7 Red Team security vulnerabilities remediated and validated by automated test suite (46/46 passing).
+- [x] All 7 Red Team security vulnerabilities remediated and validated by automated test suite (48/48 passing).
+- [x] Daily morning digest (09:00 AM IST) and 90-day retention cleanup active via Vercel Cron (`vercel.json`).
 

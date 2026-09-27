@@ -12,6 +12,26 @@ import {
 } from "@/agent/telegram/sender";
 import { generateOggVoiceNote } from "@/agent/tts/voice_pipeline";
 
+import { createClient } from "@supabase/supabase-js";
+
+async function recordUserActivity(chatId: number | string) {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseKey || supabaseUrl.includes("your-project")) return;
+  try {
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    await supabase.from("users").upsert(
+      {
+        chat_id: Number(chatId),
+        preferred_metal: "gold_24k",
+      },
+      { onConflict: "chat_id", ignoreDuplicates: true }
+    );
+  } catch {
+    // Non-blocking background registration
+  }
+}
+
 export async function handleTelegramUpdate(update: any) {
   const message = update?.message || update?.edited_message;
   if (!message || !message.chat) return;
@@ -24,6 +44,7 @@ export async function handleTelegramUpdate(update: any) {
     const greeting =
       "Namaste! Main Aurum AI hoon. Main aapke parivaar ke liye sona aur chandi ke taaza bhav aur pichle dino ke daam ka hisaab laata hoon, taaki aap sahi jaankaari ke saath apna faisla le sakein.\n\nAap mujhse aasaani se pooch sakte hain:\n• 'Aaj sone ka kya bhav hai?'\n• 'Chandi ka rate kya chal raha hai?'\n• '50,000 rupaye mein kitna sona aayega?'";
     await sendTelegramTextMessage(chatId, greeting, false);
+    await recordUserActivity(chatId);
     await logInteraction(chatId, "incoming_text", userText);
     await logInteraction(chatId, "outgoing_text", greeting);
     return;

@@ -102,3 +102,13 @@
 - [x] Verified via dedicated automated Red Team test suite (`tests/test_red_team_audit.mjs`): 12/12 tests passed
 - [x] Total automated test suite: 18 Python tests + 28 TypeScript/Red Team tests = 46/46 passed (100%)
 
+## Phase 12 — Daily Morning Digest & Operational Reliability
+- [x] Configured Vercel Cron via `vercel.json` (`30 3 * * *`, 09:00 AM IST daily morning digest per Spec §8)
+- [x] Implemented `/api/cron/daily-digest` with timing-safe `CRON_SECRET` validation (CWE-208)
+- [x] Cultural morning greeting with landed price and 15-day MA contextual comparison (Spec §2)
+- [x] Spec §7: 90-day retention cleanup for `chat_log` running during daily digest execution
+- [x] Auto-enrollment of users in `users` table on `/start` command for automated delivery
+- [x] Fixed step-level secret conditional evaluation in `.github/workflows/hourly_fetch.yml`
+- [x] Automated test suite: `tests/test_daily_digest.mjs` (2/2 tests passed)
+- [x] Total automated test suite: 18 Python tests + 30 TypeScript tests = **48/48 passed (100%)**
+
