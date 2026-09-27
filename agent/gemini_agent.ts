@@ -15,8 +15,8 @@ import {
 import { ensureDisclaimer } from "@/agent/utils/disclaimer";
 import { formatIndianCurrency } from "@/agent/utils/markdown";
 
-// Model default with fallback to gemini-2.5-flash
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+// Model default with fallback to gemini-3.8-flash
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
 
 // Tool Declarations for Gemini
 const TOOL_DEFINITIONS = [
