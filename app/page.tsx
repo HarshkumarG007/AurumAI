@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import JournalManuscript from "./components/JournalManuscript";
 
 // Types
 interface MetalData {
@@ -267,6 +268,32 @@ export default function AurumDashboard() {
   const [liveData, setLiveData] = useState<MarketPayload>(DEFAULT_MARKET_DATA);
   const [historyData, setHistoryData] = useState<HistoryPayload>(DEFAULT_HISTORY_DATA);
   const [loading, setLoading] = useState(false);
+
+  // Journal Manuscript Modal State
+  const [isJournalOpen, setIsJournalOpen] = useState(false);
+
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsJournalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Prevent background scroll when journal modal is open
+  useEffect(() => {
+    if (isJournalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isJournalOpen]);
 
   // Calculator State
   const [calcBudget, setCalcBudget] = useState<number>(50000);
@@ -1316,6 +1343,37 @@ export default function AurumDashboard() {
       <footer className="app-footer">
         <div className="footer-glow-aura" />
         
+        {/* Interactive Project Story & Author's Journal Card */}
+        <div className="footer-story-card">
+          <div className="footer-story-info">
+            <div className="footer-story-icon">📜</div>
+            <div className="footer-story-text">
+              <h4>The Chronicle of Aurum AI — Written with Ink &amp; Feather</h4>
+              <p>
+                An engineering memoir &amp; econometric whitepaper by Lead AI/ML Engineer Harsh Kumar Gupta. Experience the full story from a kitchen table household dilemma to 782-day cross-asset econometric data mining and the physical bullion friction invariant.
+              </p>
+            </div>
+          </div>
+          <div className="footer-story-btn-group">
+            <button
+              type="button"
+              className="footer-story-popup-btn"
+              onClick={() => setIsJournalOpen(true)}
+              id="btn-open-journal-popup"
+            >
+              <span>📜 Read The Story (Vintage Pop-Up)</span>
+            </button>
+            <a
+              href="/journal"
+              className="footer-story-page-link"
+              title="Open dedicated standalone story page"
+              id="link-journal-standalone-page"
+            >
+              <span>Dedicated Page ↗</span>
+            </a>
+          </div>
+        </div>
+
         <div className="footer-top-grid">
           {/* Brand Identity & Mission */}
           <div className="footer-brand-col">
@@ -1386,7 +1444,7 @@ export default function AurumDashboard() {
         {/* Bottom Attribution Line */}
         <div className="footer-bottom-bar">
           <div className="footer-attribution">
-            <span>&copy; AurumAI 2026</span>
+            <span>&copy; CC AurumAI 2026 All Rights Reserved</span>
             <span className="footer-divider">•</span>
             <span className="footer-creator-text">
               Crafted with <span className="pulsing-heart">❤️</span> by{" "}
@@ -1415,6 +1473,25 @@ export default function AurumDashboard() {
           </div>
         </div>
       </footer>
+
+      {/* Vintage Parchment Journal Pop-up Modal with Deep Blur Backdrop */}
+      {isJournalOpen && (
+        <div
+          className="vintage-modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsJournalOpen(false);
+            }
+          }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="The Chronicle of Aurum AI Journal Manuscript"
+        >
+          <div className="vintage-modal-container">
+            <JournalManuscript onClose={() => setIsJournalOpen(false)} isModal={true} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

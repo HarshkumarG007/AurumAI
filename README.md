@@ -1435,9 +1435,13 @@ aurum-ai/
 │   │       └── webhook/
 │   │           ├── handler.ts             # Webhook update dispatcher & user enrollment
 │   │           └── route.ts               # Secret-verified async Telegram webhook
-│   ├── globals.css                        # Obsidian-Gold design system, shimmering animations & responsive queries
+│   ├── components/
+│   │   └── JournalManuscript.tsx          # Vintage burned-edge manuscript component with quill & ink styling
+│   ├── journal/
+│   │   └── page.tsx                       # Dedicated standalone journal monograph page (/journal)
+│   ├── globals.css                        # Obsidian-Gold design system, shimmering animations & vintage parchment styles
 │   ├── layout.tsx                         # Root layout with SEO and OpenGraph metadata
-│   └── page.tsx                           # Full-stack command center dashboard with luxury animated footer
+│   └── page.tsx                           # Command center dashboard with interactive vintage pop-up & animated footer
 ├── database/
 │   └── schema.sql                         # PostgreSQL schema with constraints & defaults
 ├── docs/
